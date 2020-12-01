@@ -6733,6 +6733,18 @@ height: 40px;
       padding: 0 10px;
 }
 
+.node-type-customer .group-sites .field-type-text {
+  padding-right: 15px;
+    margin-top: 15px!important;
+}
+
+.page-manage-customer #edit-field-pricing-plan-target-id-wrapper label {
+    display: block;
+}
+.page-manage-customer #edit-field-pricing-plan-target-id-wrapper .views-operator, .page-manage-customer #edit-field-pricing-plan-target-id-wrapper .views-widget {
+    display: inline-block;
+}
+
 @media (max-width: 767px){
   #branding {
       position: relative;
