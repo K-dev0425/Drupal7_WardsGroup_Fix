@@ -1,0 +1,35 @@
+<?php
+//custom Menu
+function job_menu(){
+    $items = array();
+$items['customer/details/ajax'] = array(
+   'page callback'=>'customer_details_ajax',
+   'type' => MENU_CALLBACK,
+   'access arguments' => array('access content'),
+);
+return $items;
+}
+
+function customer_details_ajax(){
+    $customer_id=$_POST["customer_id"];
+
+    $customer = node_load($customer_id);
+    $primary_contact= $customer->field_primary_contact[LANGUAGE_NONE][0]['value'];
+    $primary_address= $customer->field_primary_address[LANGUAGE_NONE][0]['value'];
+
+    $primary_address_fields = field_collection_item_load($primary_address);
+    $address1=$primary_address_fields->field_address_line_1[LANGUAGE_NONE][0]['value'];
+    $address2=$primary_address_fields->field_address_line_2[LANGUAGE_NONE][0]['value'];
+    $suburb=$primary_address_fields->field_suburb[LANGUAGE_NONE][0]['value'];
+    $postel_code=$primary_address_fields->field_postal_code[LANGUAGE_NONE][0]['value'];
+    $state=$primary_address_fields->field_state[LANGUAGE_NONE][0]['tid'];
+    $closing=$primary_address_fields->field_closing[LANGUAGE_NONE][0]['value'];
+
+    $primary_contact_fields = field_collection_item_load($primary_contact);
+    $contact_name=$primary_contact_fields->field_contact_name [LANGUAGE_NONE][0]['value'];
+    $mobile=$primary_contact_fields->field_mobile[LANGUAGE_NONE][0]['value'];
+
+    $result = array('customer_id' =>$customer_id,'address1'=>$address1,'address2'=>$address2,'suburb'=>$suburb,'postel_code'=>$postel_code,'state'=>$state,'closing'=>$closing,'contact_name'=>$contact_name,'mobile'=> $mobile);
+    drupal_json_output( $result);
+    exit();
+}

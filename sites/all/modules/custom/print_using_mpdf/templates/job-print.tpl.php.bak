@@ -1,0 +1,473 @@
+<?php
+// job print pdf
+    $job_id=$_GET['job_id'];
+    $job = node_load($job_id);
+    $created=$job->created;
+    $created_date=date('d-F-Y',$created);
+    
+    $connote_no=$job->field_connote_no[LANGUAGE_NONE][0]['value'];
+    $job_no=$job->field_job_no[LANGUAGE_NONE][0]['value'];
+ 
+    $customer_id = $job->field_customer['und'][0]['target_id'];
+    $customer_load= node_load($customer_id);
+    $customer = $customer_load->title;
+    $customer_contact_fc1 =$customer_load->field_primary_contact['und'][0]['value'];
+    $customer_contact_load1 = field_collection_item_load($customer_contact_fc1);
+    $customer_phone = $customer_contact_load1->field_mobile['und'][0]['value'];
+    $customer_contact_fc =$customer_load->field_primary_address['und'][0]['value'];
+    $customer_contact_load = field_collection_item_load($customer_contact_fc);
+    $customer_add1 = $customer_contact_load->field_address_line_1['und'][0]['value'];
+    $customer_add2 = $customer_contact_load->field_address_line_2['und'][0]['value'];
+    $customer_sub = $customer_contact_load->field_suburb_['und'][0]['value'];
+    $customer_pcode = $customer_contact_load->field_postal_code_['und'][0]['value'];
+    $customer_state = $customer_contact_load->field_state['und'][0]['value'];
+ 
+    $sender_branch_id = $job->field_sender_branch['und'][0]['target_id'];
+    $sender_branch_load=taxonomy_term_load($sender_branch_id);
+    $sender_branch = $sender_branch_load->name;
+    $receiver_branch_id = $job->field_receiver_branch['und'][0]['target_id'];
+    $receiver_branch_load=taxonomy_term_load($receiver_branch_id);
+    $receiver_branch = $receiver_branch_load->name;
+    
+    if($job->field_sender_manual_entry['und'][0]['value'] == 1){
+            $origin_fc =$job->field_sender_third_party['und'][0]['value'];
+            $origin_load = field_collection_item_load($origin_fc);
+            $or_name = $origin_load->field_sender_manual_name['und'][0]['value'];
+            $or_add1=$origin_load-> field_sender_manual_address1['und'][0]['value'];
+            $or_add2=$origin_load->field_sender_manual_address2['und'][0]['value'];
+            $or_suburb=$origin_load->field_sender_suburb['und'][0]['value'];
+            $or_postcode=$origin_load->field_sender_postal_code['und'][0]['value'];
+            $or_state=$origin_load->field_sender_state['und'][0]['value'];
+            $or_phone=$origin_load->field_sender_phone['und'][0]['value'];
+        }
+        else {
+            $origin_fc=$job->field_origin['und'][0]['value'];
+            $origin_load = field_collection_item_load($origin_fc);
+            $or_name_id = $origin_load->field_sender_name['und'][0]['target_id'];
+            $or_name_load=node_load($or_name_id);
+            $or_name = $or_name_load->title;
+            $or_add1=$origin_load->field_address_line_1['und'][0]['value'];
+            $or_add2=$origin_load->field_address_line_2['und'][0]['value'];
+            $or_suburb=$origin_load->field_suburb_['und'][0]['value'];
+            $or_postcode=$origin_load->field_postal_code_['und'][0]['value'];
+             $or_state=$origin_load->field_state['und'][0]['value'];
+            $or_phone=$origin_load->field_phone['und'][0]['value'];
+        }
+    
+        if($job->field_receiver_manual_entry['und'][0]['value'] == 1){
+             $des_fc=$job->field_receiver_third_party['und'][0]['value'];
+            $des_load = field_collection_item_load($des_fc);
+            $des_name = $des_load->field_receiver_manual_name['und'][0]['value'];
+            $des_add1=$des_load->field_receiver_address_line_1['und'][0]['value'];
+            $des_add2=$des_load->field_receiver_address_line_2['und'][0]['value'];
+            $des_suburb=$des_load->field_receiver_suburb['und'][0]['value'];
+            $des_postcode=$des_load->field_receiver_postal_code['und'][0]['value'];
+            $des_tate=$des_load->field_receiver_state['und'][0]['value'];
+            $des_phone=$des_load->field_receiver_phone['und'][0]['value'];
+        }
+        else {
+            $des_fc=$job->field_destination['und'][0]['value'];
+            $des_load = field_collection_item_load($des_fc);
+            $des_name_id = $des_load->field_receiver_name['und'][0]['target_id'];
+            $des_name_load=node_load($des_name_id);
+            $des_name = $des_name_load->title;
+            $des_add1=$des_load->field_address_line_1['und'][0]['value'];
+            $des_add2=$des_load->field_address_line_2['und'][0]['value'];
+            $des_suburb=$des_load->field_suburb_['und'][0]['value'];
+            $des_postcode=$des_load->field_postal_code_['und'][0]['value'];
+            $des_tate=$des_load->field_state['und'][0]['value'];
+            $des_phone=$des_load->field_phone['und'][0]['value'];
+        }
+
+ ?>
+
+<style>
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+</style>
+
+<table style="table-layout:fixed;width:100%">
+<tr>
+   <th style="text-align:left;font-size:12px;line-height:2;font-family: 'Open Sans';padding:10px;font-weight:normal;" rowspan="5">
+   <b style="text-align:left;font-size:16px;font-family: 'Open Sans';padding:10px;font-weight:bold;">WARD'S TRANSPORT</b><br/><br/>
+   A.B.N. 97 105 025 189<br/>
+   98 Wyndham Street, Roma, 4455 - P.O.
+   Box 54<br/>
+
+<a href="http://www.wardstransport.com.au">www.wardstransport.com.au</a><br/>
+PH : <span style="color:#0070c0">1300 4 </span> <span style="color:#17365d;">Wards <span style="font-size:7px;">(1300 492 737)</spna></span><br/>
+   </th>
+  </tr>
+ <tr>
+   <th style="text-align:left;font-size:12px;font-family: 'Open Sans';padding:10px;font-weight:bold;"></th>
+   <th style="text-align:left;font-size:12px;padding:10px;font-weight:bold;" colspan="2">Consignment Note <?php echo $connote_no;?></th>
+  <th style="text-align:left;font-size:12px;padding:10px;font-weight:bold;"></th>
+ </tr>
+ <tr>
+   <td style="text-align:left;font-size:12px;font-family: 'Open Sans';padding:40px 10px;font-weight:normal;"></td>
+   <td style="text-align:left;font-size:12px;font-family: 'Open Sans';padding:40px 10px;font-weight:normal;" colspan="2"><?php echo $created_date; ?></td>
+   <td style="text-align:left;font-size:12px;font-family: 'Open Sans';padding:10px;font-weight:normal;"><?php $properties = array('barcode_value' => $connote_no,
+                               'encoding' => 'CODE128',
+                                'height' => 40,
+                                 'image_format' => 'png',
+                                 'bgcolor' => '#FFFFFF',
+                                 'barcolor' => '#000000',
+                                 'scale' => 2);
+                 print theme('barcode_image', $properties); ?>
+   </td>
+ </tr>
+   <tr>
+
+   <td style="font-family: 'Open Sans';font-size: 10px;border:1px solid #000;padding: 9px;" width="150px;">Job ID : <b><?php echo $job_id;?></b></td>
+   <td style="font-family: 'Open Sans';font-size: 10px;border:1px solid #000;padding: 9px;" width="150px;">Service Type : <b><?php
+     $job_id=$_GET['job_id'];
+     $job = node_load($job_id);
+     if(isset($job->field_job_type[LANGUAGE_NONE][0]['target_id'])){
+      $service_type_tid=$job->field_job_type[LANGUAGE_NONE][0]['target_id'];
+      $service_type_load=taxonomy_term_load($service_type_tid);
+      $service_type=$service_type_load->name;
+      echo $service_type;
+     }
+      ?></b></td>
+   <td style="font-family: 'Open Sans';font-size: 10px;border:1px solid #000;padding: 9px;" width="150px;">Service level:</td>
+   <td style="font-family: 'Open Sans';font-size: 10px;border:1px solid #000;padding: 9px;" width="150px;">Customer Reference : <?php
+      $job_id=$_GET['job_id'];
+      $job = node_load($job_id);
+      if(isset($job->field_reference[LANGUAGE_NONE][0]['value'])){
+      $reference=$job->field_reference[LANGUAGE_NONE][0]['value'];
+      echo $reference;
+      }
+      ?></td>
+ </tr>
+ <tr>
+  <td style="font-family: 'Open Sans';font-size: 9px;padding: 9px;"></td>
+  <td style="font-family: 'Open Sans';font-size: 9px;padding: 9px;"></td>
+  <td style="font-family: 'Open Sans';font-size: 9px;padding: 9px;"></td>
+  <td style="font-family: 'Open Sans';font-size: 9px;padding: 9px;"></td>
+ </tr>
+
+</table>
+
+
+<table style="table-layout:fixed;width:100% color: #333;margin-bottom:20px;border-bottom: 1px solid #000;">
+ <tr>
+   <th style="background-color:#dbe5f1;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:center;padding:10px;border: 1px solid #000;margin-bottom:5px;" colspan="3">SENDER/CONSIGNER</th>
+       <th width:50px; style="background-color:#fff;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:center;padding:10px;margin-bottom:5px;" ></th>
+   <th style="background-color:#dbe5f1;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:center;padding:10px;border: 1px solid #000;margin-bottom:5px;" colspan="3">RECEIVER/CONSIGNEE</th>
+         <th width:50px; style="background-color:#fff;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:center;padding:10px;margin-bottom:5px;" ></th>
+   <th style="background-color:#dbe5f1;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:center;padding:10px;border: 1px solid #000;margin-bottom:5px;" colspan="3">CUSTOMER</th>
+         <th width:50px; style="background-color:#fff;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:center;padding:10px;margin-bottom:5px;" ></th>
+   <th style="background-color:#dbe5f1;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:center;padding:10px;border: 1px solid #000;margin-bottom:5px;" colspan="4">Special instructions</th>
+ </tr>
+
+   <tr>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:10px 10px 0;margin-bottom:5px;" colspan="3">
+   	<h2 style="font-family: 'Open Sans';font-weight:bold;font-size:9px;padding:0; margin:0;font-weight:bold;"> <?php echo $or_name; ?></h2>
+
+   	</td>
+   <td colspan="1"  ></td>
+     <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:9px;text-align:left;padding:10px 10px 0;;margin-bottom:5px;" colspan="3">
+   <h2 style="font-family: 'Open Sans';font-weight:bold;font-size:9px;padding:0; margin:0;font-weight:bold;"> <?php echo $des_name; ?></h2>
+  
+     <td colspan="1"  ></td>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:9px;text-align:left;padding:10px 10px 0;;margin-bottom:5px;" colspan="3">
+
+    <h2 style="font-family: 'Open Sans';font-weight:bold;font-size:9px;padding:0; margin:0;font-weight:bold;"> <?php echo $customer; ?></h2>
+
+       </td>
+   <td colspan="1"  ></td>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:9px;text-align:left;padding:10px 10px 0;margin-bottom:5px;" colspan="10"></td>
+ </tr>
+
+    <tr>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:0 10px;margin-bottom:5px;" colspan="3">
+      
+      <?php echo $or_add1.',<br/>';
+      if(!empty($or_add2)){
+      echo $or_add2.', ';
+      }
+      echo $or_suburb.',<br/>'.$or_state.', '.$or_postcode.',<br/>'.$or_phone; ?> 
+   </td>
+   <td colspan="1"  ></td>
+     <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:0 10px;margin-bottom:5px;" colspan="3">
+      
+   <?php echo $des_add1.', '.$des_suburb.',<br/>'.$des_tate.', '.$des_postcode.',<br/>'.$des_phone; ?>
+
+     </td>
+      <td colspan="1"  ></td>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:0 10px;margin-bottom:5px;" colspan="3">
+        <?php echo $customer_add1.', ' .$customer_sub.',<br/>'.$customer_state.', '.$customer_pcode.',<br/>'.$customer_phone; ?>
+   </td>
+   <td colspan="1"  ></td>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:0 10px;margin-bottom:5px;" colspan="4"></td>
+ </tr>
+
+
+  <tr>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:10px;margin-bottom:5px;" colspan="3"  width="300px";></td>
+   <td colspan="1" width="20px"; ></td>
+     <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:10px;margin-bottom:5px;" colspan="3"  width="300px";></td>
+      <td colspan="1"  width="20px";></td>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:10px;margin-bottom:5px;" colspan="3" width="300px";></td>
+     <td colspan="1"  width="20px"; ></td>
+   <td style="border-left: 1px solid #000;border-right: 1px solid #000;font-family: 'Open Sans';font-weight:bold;font-size:7px;text-align:left;padding:10px;margin-bottom:5px;" colspan="10" width="300px";></td>
+ </tr>
+
+ </table>
+<table style="table-layout:fixed;width:100% color: #333;border:1px solid #000;border-left: 0px solid #000;border-bottom: 0px solid #000;border-right: 0px solid #000;">
+
+  <tr style="margin-bottom:10px;">
+   <td rowspan="2" style="background-color:#fff;border-left:1px solid #000; text-align:center;font-size:7px;padding:10px 5px;font-weight:bold">Sender Reference</td>
+
+   <td rowspan="2" style="background-color:#fff;border-left:1px solid #000;text-align:center;font-size:7px;padding:10px 5px;font-weight:bold">QTY</td>
+       <td rowspan="2" style="background-color:#fff;border-left:1px solid #000;text-align:center;font-size:7px;padding:10px 5px;font-weight:bold">ITEM TYPE</td>
+   <td rowspan="2" style="background-color:#fff;border-left:1px solid #000;text-align:center;font-size:7px;padding:10px 5px;font-weight:bold">Descriptions</td>
+   <td style="background-color:#fff;text-align:center;border-left:1px solid #000;border-bottom:1px solid #000;text-align:center;font-size:7px;padding:2px 5px 0px;font-weight:bold" colspan="3">Dimensions (CM)</td>
+   <td rowspan="2" style="background-color:#fff;text-align:center;border-left:1px solid #000;font-size:7px;padding:10px 5px;font-weight:bold">Weight (Kg)</td>
+   <td rowspan="2" style="background-color:#fff;text-align:center;border-left:1px solid #000;font-size:7px;padding:10px 5px;font-weight:bold">M3</td>
+   <td rowspan="2"  style="background-color:#fff;text-align:center;border-left:1px solid #000;font-size:7px;padding:10px 5px;font-weight:bold">PLT SPC</td>
+   <td style="background-color:#fff;border-left:1px solid #000;text-align:center;font-size:7px;padding:2px 5px 0px;border-bottom:1px solid #000;border-right: 1px solid #000;font-weight:bold;" colspan="4">Dangerous Goods    </td>
+ </tr>
+  <tr>
+
+
+  <td style="background-color:#fff;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;font-weight:bold">L</td>
+ <td style="background-color:#fff;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;font-weight:bold">W</td>
+ <td style="background-color:#fff;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;font-weight:bold" >H</td>
+ <td style="background-color:#fff;border-left:1px solid #000;border-top:1px solid #ddd;text-align:center;font-size:5px;padding:2px;width:50px;font-weight:bold"  >Shipping Name</td>
+ <td style="background-color:#fff;width:50px;border-left:1px solid #000;border-top:1px solid #ddd;text-align:center;font-size:5px;padding:2px;font-weight:bold" >Class</td>
+ <td style="background-color:#fff;width:50px;border-left:1px solid #000;border-top:1px solid #ddd;text-align:center;font-size:5px;padding:2px;font-weight:bold" >UN#</td>
+ <td style="background-color:#fff;width:50px;border-left:1px solid #000;border-top:1px solid #ddd;border-right:1px solid #000;text-align:center;font-size:5px;padding:2px;font-weight:bold" >PKG GRP</td> </tr>
+ <?php
+   $total_length=0;
+   $total_width=0;
+   $total_height=0;
+   $total_weigth=0;
+   $total_quantity=0;
+   $count=0;
+   foreach($job->field_items[LANGUAGE_NONE] as $iid){
+     $item_id=field_collection_item_load($iid['value']);
+     $qty=$item_id->field_qty[LANGUAGE_NONE][0]['value'];
+     $length=$item_id->field_length[LANGUAGE_NONE][0]['value'] ;
+     $width=$item_id->field_width[LANGUAGE_NONE][0]['value'];
+     $height=$item_id->field_height[LANGUAGE_NONE][0]['value'];
+     $weight=$item_id->field_weight[LANGUAGE_NONE][0]['value'];
+     $total_length+=$length;
+     $total_width+=$width;
+     $total_height+=$height;
+     $total_quantity+=$qty;
+     $total_weigth+=$weight;
+     $item_term_id=$item_id->field_item_type['und'][0]['target_id'];
+     $item_type_load=taxonomy_term_load($item_term_id);
+     $item_type=$item_type_load->name;
+     $item_cubic = $item_id->field_cubic['und'][0]['value'];
+     $fc_dg_details = $item_id->field_dg_details['und'][0]['value']; 
+     $fc_dg_id = field_collection_item_load($fc_dg_details);
+     $dg_name = $fc_dg_id->field_dg_name['und'][0]['value']; 
+     $dg_un_no = $fc_dg_id->field_dg_un_no['und'][0]['value']; 
+     $dg_packaging_group = $fc_dg_id->field_dg_packaging_group['und'][0]['value']; 
+     $dg_class_id = $fc_dg_id->field_dg_class['und'][0]['target_id'];
+     $dg_type_load=taxonomy_term_load($dg_class_id);
+     $dg_class = $dg_type_load->name;
+    //   echo "<pre>";
+    //   print_r($fc_dg_id);
+    //   die;
+
+ ?>
+
+   <tr>
+   <td style="background-color:#fff;border-left:1px solid #000;border-top:1px solid #000; text-align:center;font-size:5px;padding:2px; "><?php
+    if(isset($item_id->field_reference[LANGUAGE_NONE])){ 
+    $reference = $item_id->field_reference[LANGUAGE_NONE][0]['value'];
+    echo $reference;
+    }
+    ?></td>
+   <td style="background-color:#fff;border-left:1px solid #000;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;"><?php echo $qty;?></td>
+      <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;"><?php echo $item_type;?></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;"><?php 
+   if(isset($item_id->field_description[LANGUAGE_NONE])){  
+    $description=$item_id->field_description[LANGUAGE_NONE][0]['value'];
+    echo $description;
+   }
+   ?></td>
+   <td style="background-color:#fff;width:50px;border-left:1px solid #000;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;" colspan="1"><?php echo $length;?> </td>
+   <td style="background-color:#fff;width:50px;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;"><?php echo $width;?></td>
+   <td style="background-color:#fff;width:50px;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;"><?php echo $height;?></td>
+   <td style="background-color:#fff;width:50px;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;"><?php echo $weight;?></td>
+   <td style="background-color:#fff;width:50px;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;" colspan="1"><?php echo $item_cubic; ?></td>
+   <td style="background-color:#fff;width:50px;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;" colspan="1"><?php 
+   if(isset($item_id->field_plt_spc[LANGUAGE_NONE])){ 
+    $plt=$item_id->field_plt_spc[LANGUAGE_NONE][0]['value'];
+    echo $plt;
+   }
+   ?> </td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;" colspan="1"><?php echo $dg_name;?></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;" ><?php echo $dg_class;?></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;" ><?php echo $dg_un_no;?></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-right:1px solid #000;border-left:1px solid #000;text-align:center;font-size:5px;padding:2px;" ><?php echo $dg_packaging_group;?></td>
+ </tr>
+
+ 
+ <?php $count++; } ?>
+<?php for($i=1; $i<=(10-$count); $i++){ ?>
+  <tr>
+   <td style="background-color:#fff;border-left:1px solid #000;border-top:1px solid #000; text-align:left;font-size:5px;padding:5px; "></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;" colspan="1"> </td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;" colspan="1"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;" colspan="1"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;" colspan="1"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;" ></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;" ></td>
+   <td style="background-color:#fff;border-top:1px solid #000;border-right:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:5px;" ></td>
+     <td style="background-color:#fff;border-top:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:5px;" ></td>
+ </tr>
+<?php } ?>
+
+  <tr>
+   <td style="background-color:#fff;border-top:1px solid #000; text-align:left;font-size:5px;padding:5px; "></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;" colspan="1"> </td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;" colspan="1"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;" colspan="1"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;" colspan="1"></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;" ></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;" ></td>
+   <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;" ></td>
+     <td style="background-color:#fff;border-top:1px solid #000;text-align:left;font-size:5px;padding:5px;" ></td>
+ </tr>
+   <tr>
+     <td style="background-color:#fff;border-left:1px solid #000; text-align:center;border-top:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1; "><b>Total</b></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"><?php echo $total_quantity; ?></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"><?php echo $total_length;?></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"><?php echo $total_width;?></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"><?php echo $total_height;?></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"><?php echo $total_weigth;?></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"></td>
+     <td style="background-color:#fff;text-align:center;border-top:1px solid #000;border-left:1px solid #000;border-bottom:1px solid #000;border-right:1px solid #000;font-size:5px;padding:2px;font-weight:bold;background-color:#dbe5f1;"></td>
+ </tr>
+
+ </table>
+
+
+
+<br/>
+
+
+
+<!--<table style="table-layout:fixed;width:100%;margin-bottom:10px">-->
+<!-- <tr>-->
+
+<!--   <th style="background-color:#000;float:center;font-size:14px;width: 100%;font-weight:normal;color:#fff;padding:5px">Driver to complete<th>-->
+ 
+<!-- </tr>-->
+<!-- </table>-->
+
+
+<!--<table style="table-layout:fixed;width:500px;margin:5px 50px ;border-bottom:1px solid #000;">-->
+<!--<tr>-->
+<!--  <th style="text-align:left;font-size:5px;padding:2px;font-weight:normal;"></th>-->
+<!--   <th colspan="2" style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Pallets In</th>-->
+<!--      <th colspan="2" style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Pallets Out</th>-->
+   
+<!--   <th style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;width:40px;padding:2px;font-weight:normal;"></th>-->
+<!--   <th style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;width:40px;padding:2px;font-weight:normal;"></th>-->
+<!--   <th style="border-top:1px solid #000;border-left:1px solid #000;border-right:1px solid #000;width:40px;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></th>-->
+<!-- </tr>-->
+<!-- <tr>-->
+<!--  <td style="text-align:left;font-size:10px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Exchange</td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Transfer</td>-->
+<!--     <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Exchange</td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Transfer</td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+
+<!-- </tr>-->
+
+<!--   <tr>-->
+<!--     <td  style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Loscam</td>-->
+<!--      <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--    <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--    <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--    </tr>-->
+<!--    <tr>-->
+<!--     <td  style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Chep</td>-->
+<!--      <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--    <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--    <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--      <td style="border-top:1px solid #000;border-left:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--    </tr>-->
+<!--    <tr>-->
+<!--     <td  style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Transfer DKT #</td>-->
+<!--      <td colspan="2" style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--    <td colspan="2" style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td width:200px; style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--   <td  width:200px; style="border-top:1px solid #000;border-left:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--     <td  width:200px; style="border-top:1px solid #000;border-left:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"></td>-->
+<!--    </tr>-->
+<!--    </table>-->
+
+ <table style="table-layout:fixed;width:100%;margin:10px 0px;border:1px solid #000;">
+    <tr>
+     <td colspan="2"  width="300px"; style="width:200px;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Senders Signature</td>
+     <td colspan="2"  width="300px"; style="width:200px;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Pickup Driver Signature</td>
+     <td colspan="2"  width="300px"; style="width:200px;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Receivers signature</td>
+     <td colspan="2"  width="300px"; style="width:200px;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Delivery Driver Signature</td>
+    </tr>
+
+     <tr>
+     <td colspan="2"  width="300px"; style="width:25%;border-top:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;"><b>T&C</b> - By signing this consignment note, you acknowledge that you have read, understood and agreed to the conditions of carriage on the reverse. In particular, you acknowledge that:  You should take out your own insurance cover over the goods. If you are operating a business; the goods are at your sole risk and our services are priced on this basis; and we will not accept liability for any loss of or damage to the goods, or any other losses you suffer, regardless of the cause.</td>
+     <td colspan="2" style="width:25%;border-top:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">FLEET #</td>
+     <td colspan="2"  width="300px"; style="width:25%;border-top:1px solid #000;border-right:1px solid #000;text-align:center;font-size:5px;padding:2px;font-weight:normal;">I/We hereby agree that these goods were received in total and in good condition.</td>
+     <td colspan="2" style="width:25%;border-top:1px solid #000;text-align:left;font-size:5px;padding:2px;font-weight:normal;">FLEET #</td>
+    </tr>
+
+     <tr>
+     <td rowspan="2" style="border-top:1px solid #000;border-right:1px solid #000;width:100px;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Signature</td>
+     <td colspan="1" style="border-top:1px solid #000;border-right:1px solid #000;width:100px;text-align:left;font-size:5px;padding:10px 5px;font-weight:normal;">Name</td>
+       <td rowspan="2" style="border-top:1px solid #000;border-right:1px solid #000;width:100px;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Signature</td>
+     <td colspan="1" style="border-top:1px solid #000;border-right:1px solid #000;width:100px;text-align:left;font-size:5px;padding:10px 5px;font-weight:normal;">Name</td>
+       <td rowspan="2" style="border-top:1px solid #000;border-right:1px solid #000;width:100px;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Signature</td>
+     <td colspan="1" style="border-top:1px solid #000;border-right:1px solid #000;width:100px;text-align:left;font-size:5px;padding:10px 5px;font-weight:normal;">Name</td>
+       <td rowspan="2" style="border-top:1px solid #000;border-right:1px solid #000;width:100px;text-align:left;font-size:5px;padding:2px;font-weight:normal;">Signature</td>
+     <td colspan="1" style="border-top:1px solid #000;width:100px;text-align:left;font-size:5px;padding:10px 5px;font-weight:normal;">Name</td>
+    </tr>
+  <tr>
+
+     <td colspan="1" style="border-top:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:10px 5px;;font-weight:normal;">Date</td>
+
+     <td colspan="1" style="border-top:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:10px 5px;;font-weight:normal;">Date</td>
+
+     <td colspan="1" style="border-top:1px solid #000;border-right:1px solid #000;text-align:left;font-size:5px;padding:10px 5px;font-weight:normal;">Date</td>
+
+     <td colspan="1" style="border-top:1px solid #000;text-align:left;font-size:5px;padding:10px 5px;font-weight:normal;">Date</td>>
+    </tr>
+
+
+
+
+
+</table>
+<p style="border-top:1px solid #ddd;text-align:center;font-size:5px;padding:5px 10px;font-weight:normal;">Wards Transport is not a common carrier, all transport is done under our company Terms and Conditions of Carriage. Which is available online or on request</p>

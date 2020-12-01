@@ -1,0 +1,1194 @@
+<?php
+
+    function csvImporter_menu() {
+      $items = array();
+      $items['pricing-plan-import'] = array(
+        'title' => 'Import Pricing Plan Data from CSV',
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'page callback' => 'PricingImporter_pagecallback',
+        'type' => MENU_NORMAL_ITEM,
+      );
+      $items['customer-import'] = array(
+        'title' => 'Import Customer Data from CSV',
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'page callback' => 'CustomerImporter_pagecallback',
+        'type' => MENU_NORMAL_ITEM,
+      );
+      /*$items['customer-import'] = array(
+        'title' => 'Import Customer Data from CSV',
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'page callback' => 'CustomerImporter_pagecallback',
+        'type' => MENU_NORMAL_ITEM,
+      );*/
+      /*$items['driver-test'] = array(
+        'title' => 'Driver Test',
+        'page callback' => 'form_example_form',
+        'access callback' => TRUE,
+      );*/
+      return $items ;
+    }
+
+    /*function form_example_form(){
+      module_load_include('inc', 'node', 'node.pages');
+      $form = node_add('manifest');
+     $form = drupal_render($form);
+     return $form;
+    }*/
+
+  /*function CustomerImporter_pagecallback(){
+    $module_path = drupal_get_path('module', 'csvImporter');
+    $form = drupal_get_form('CustomerImporter_form');
+    $output = "<p>This tool will attempt to import CSV data and create Customer node";
+    $output = "<p>Please use this file as sample for columns information: <a href=".file_create_url('public://samplecustomer.csv').">Download Here</a></p>";
+    $output .= drupal_render($form);
+
+    return $output;
+  }*/
+
+  function PricingImporter_pagecallback(){
+    $module_path = drupal_get_path('module', 'csvImporter');
+    $form = drupal_get_form('PricingImporter_form');
+    $output = "<p>This tool will attempt to import CSV data and create Pricing Plans node";
+    $output = '<p>Please use this file as sample for columns information: <a href="/demo/samplepricing.csv" download target="_blank">Download Here</a></p>';
+    $output .= drupal_render($form);
+
+    return $output;
+  }
+  function CustomerImporter_pagecallback(){
+    $module_path = drupal_get_path('module', 'csvImporter');
+    $form = drupal_get_form('CustomerImporter_form');
+    $output = "<p>This tool will attempt to import CSV data and create Customer node";
+    $output = '<p>Please use this file as sample for columns information: <a href="/demo/customerimportsample.csv" download target="_blank">Download Here</a></p>';
+    $output .= drupal_render($form);
+
+    return $output;
+  }
+
+  function PricingImporter_form() {
+    $form['#attributes'] = array(
+      'enctype' => 'multipart/form-data'
+    );
+
+    $form['csvfile'] = array(
+      '#title' => t('CSV File'),
+      '#type'  => 'file',
+      '#description' => ($max_size = parse_size(ini_get('upload_max_filesize'))) ? t('<strong>Maximum upload file size is !max_size</strong>.', array('!max_size' => format_size($max_size))) : '',
+    ) ;
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Import'),
+    ) ;
+    $form['#validate'] = array(
+      'PricingImporter_form_validate_fileupload',
+      'PricingImporter_form_validate',
+    ) ;
+    return $form ;
+  }
+
+  function CustomerImporter_form() {
+    $form['#attributes'] = array(
+      'enctype' => 'multipart/form-data'
+    );
+
+    $form['csvfile'] = array(
+      '#title' => t('CSV File'),
+      '#type'  => 'file',
+      '#description' => ($max_size = parse_size(ini_get('upload_max_filesize'))) ? t('<strong>Maximum upload file size is !max_size</strong>.', array('!max_size' => format_size($max_size))) : '',
+    ) ;
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Import'),
+    ) ;
+    $form['#validate'] = array(
+      'CustomerImporter_form_validate_fileupload',
+      'CustomerImporter_form_validate',
+    ) ;
+    return $form ;
+  }
+
+  /*function CustomerImporter_form() {
+    $form['#attributes'] = array(
+      'enctype' => 'multipart/form-data'
+    );
+
+    $form['csvfile'] = array(
+      '#title' => t('CSV File'),
+      '#type'  => 'file',
+      '#description' => ($max_size = parse_size(ini_get('upload_max_filesize'))) ? t('<strong>Maximum upload file size is !max_size</strong>.', array('!max_size' => format_size($max_size))) : '',
+    ) ;
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Import'),
+    ) ;
+    $form['#validate'] = array(
+      'Importer_form_validate_fileupload',
+      'CustomerImporter_form_validate',
+    ) ;
+    return $form ;
+  }*/
+
+  function PricingImporter_form_validate_fileupload(&$form, &$form_state) {
+    $validators = array(
+      'file_validate_extensions' => array( 'csv' ),
+    );
+
+    if ( $file = file_save_upload('csvfile', $validators, "public://", FILE_EXISTS_REPLACE) ) {
+      $form_state['values']['csvupload'] = $file->destination;
+    }
+    else {
+      form_set_error('csvImporter', t('Unable to copy upload file to !dest', array('!dest' => $destination)));
+    }
+  }
+
+
+  function PricingImporter_form_validate(&$form, &$form_state) {
+    if ( isset( $form_state['values']['csvupload'] ) ) {
+      if ( $handle = fopen($form_state['values']['csvupload'], 'r') ) {
+        $line_count = 1 ;
+        $first = TRUE ;
+        if ( $line = fgetcsv($handle, 4096) ) {
+            if(count($line) != 11){
+              form_set_error('csvfile', t('This file has the incorrect number of columns. Expecting 11'));
+            }
+        }
+        fclose($handle);
+      }
+      else {
+        form_set_error('csvfile', t('Unable to read uploaded file !filepath', array('!filepath' => $form_state['values']['csvupload'])));
+      }
+    }
+  }
+
+
+  function CustomerImporter_form_validate_fileupload(&$form, &$form_state) {
+    $validators = array(
+      'file_validate_extensions' => array( 'csv' ),
+    );
+
+    if ( $file = file_save_upload('csvfile', $validators, "public://", FILE_EXISTS_REPLACE) ) {
+      $form_state['values']['csvupload'] = $file->destination;
+    }
+    else {
+      form_set_error('csvImporter', t('Unable to copy upload file to !dest', array('!dest' => $destination)));
+    }
+  }
+
+
+  function CustomerImporter_form_validate(&$form, &$form_state) {
+    if ( isset( $form_state['values']['csvupload'] ) ) {
+      if ( $handle = fopen($form_state['values']['csvupload'], 'r') ) {
+        $line_count = 1 ;
+        $first = TRUE ;
+        if ( $line = fgetcsv($handle, 4096) ) {
+            if(count($line) != 28){
+              form_set_error('csvfile', t('This file has the incorrect number of columns. Expecting 11'));
+            }
+        }
+        fclose($handle);
+      }
+      else {
+        form_set_error('csvfile', t('Unable to read uploaded file !filepath', array('!filepath' => $form_state['values']['csvupload'])));
+      }
+    }
+  }
+  /*function CustomerImporter_form_validate(&$form, &$form_state) {
+    if ( isset( $form_state['values']['csvupload'] ) ) {
+      if ( $handle = fopen($form_state['values']['csvupload'], 'r') ) {
+        $line_count = 1 ;
+        $first = TRUE ;
+        if ( $line = fgetcsv($handle, 4096) ) {
+            if(count($line) != 11){
+              form_set_error('csvfile', t('This file has the incorrect number of columns. Expecting 11'));
+            }
+        }
+        fclose($handle);
+      }
+      else {
+        form_set_error('csvfile', t('Unable to read uploaded file !filepath', array('!filepath' => $form_state['values']['csvupload'])));
+      }
+    }
+  }*/
+
+  function PricingImporter_form_submit(&$form, &$form_state) {
+
+    $batch = array(
+      'title' => t('Importing CSV ...'),
+      'operations' => array(),
+      'init_message' => t('Commencing'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('An error occurred during processing'),
+      'finished' => 'csvImporter_import_finished',
+    ) ;
+    if ( isset( $form_state['values']['csvupload'] ) ) {
+      if ( $handle = fopen($form_state['values']['csvupload'], 'r') ) {
+        //$batch['operations'][] = array('_csvImporter_remember_filename', array( $form_state['values']['csvupload'] ) ) ;
+        $line_count = 1 ;
+        $first = TRUE ;
+        $line_initial = fgetcsv($handle, 4096);
+        $pricing_plan_normalised = array();
+        $last_line_title = '';
+        $last_item_to_from = '';
+        while ( $line = fgetcsv($handle, 4096) ) {
+          if($line[0] != '') {
+            $last_node_title = $line[0];
+          }
+
+          if($line[1] != '' && $line[2] != '' && $line[3] != '') {
+            $last_line_title = $line[1].'/'.$line[2].'/'.$line[3];
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['item'] = $line[1];
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['origin'] = $line[2];
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['destination'] = $line[3];
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['reversal'] = $line[10];
+          }
+          if($line[4] != '') {
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['weight'][] = array('to' => $line[4], 'from' => $line[5], 'price' => $line[6]);
+          }
+          if($line[7] != '') {
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['plspc'][] = array('to' => $line[7], 'from' => $line[8],'price' => $line[9]);
+          }
+          //$batch['operations'][] = array('_csvImporter_create_nodes', array(array_map('base64_encode', $line)));
+        }
+        fclose($handle);
+      }
+    }
+    // echo '<pre>';
+    // print_r($pricing_plan_normalised);
+    // die;
+    if(!empty($pricing_plan_normalised)){
+	    foreach($pricing_plan_normalised as $key => $value){
+	    	//create node
+	    	$node = new StdClass();
+			$node->type = 'pricing';
+			$node->language = LANGUAGE_NONE;
+			node_object_prepare($node);
+			$node->title = $key;
+      $error_array = array();
+			// add pricing details
+			if(!empty($value)){
+				foreach($value as $values){
+          $item_check = taxonomy_get_term_by_name($values['item']);
+          $origin_check = taxonomy_get_term_by_name($values['origin']);
+          $destination_check = taxonomy_get_term_by_name($values['destination']);
+          if(!empty($item_check) && !empty($origin_check) && !empty($destination_check) ){
+  					$field_collection_item = entity_create('field_collection_item', array('field_name' => 'field_pricing_details'));
+  					$field_collection_item->setHostEntity('node', $node);
+  					if(!empty($values['item'])){
+  						$item = taxonomy_get_term_by_name($values['item']);
+  						foreach($item as $items){
+  							$item_id = $items->tid;
+  						}
+  						$field_collection_item->field_item_type[LANGUAGE_NONE][]['target_id'] = $item_id;
+  					}
+  					if(!empty($values['origin'])){
+  						$origin = taxonomy_get_term_by_name($values['origin']);
+  						foreach($origin as $origins){
+                if($origins->vid == 8){
+  							$origin_id = $origins->tid;
+                $field_collection_item->field_receiver_branch[LANGUAGE_NONE][]['target_id'] = $origin_id;
+                }
+  						}
+
+  					}
+  					if(!empty($values['destination'])){
+  						$destination = taxonomy_get_term_by_name($values['destination']);
+  						foreach($destination as $destinations){
+                if($destinations->vid == 8){
+  							$destination_id = $destinations->tid;
+                $field_collection_item->field_sender_branch[LANGUAGE_NONE][]['target_id'] = $destination_id;
+                }
+  						}
+
+  					}
+  					if(!empty($values['reversal'])){
+  						$field_collection_item->field_apply_reversed_price[LANGUAGE_NONE][]['value'] = $values['reversal'];
+  				    }
+
+
+  					$field_collection_item->save();
+  					$node->field_my_field_collection[LANGUAGE_NONE][]['value'] = $field_collection_item->item_id;
+
+  					// add pricing weight details
+  				    if(!empty($values['weight'])){
+  				    	foreach($values['weight'] as $weight){
+  				    		$field_collection_item_weight = entity_create('field_collection_item', array('field_name' => 'field_price_by_weight'));
+  							$field_collection_item_weight->setHostEntity('field_collection_parent', $field_collection_item);
+  							if(!empty($weight['to'])){
+  								$field_collection_item_weight->field_from_range[LANGUAGE_NONE][]['value'] = $weight['to'];
+  							}
+  							if(!empty($weight['from'])){
+  								$field_collection_item_weight->field_to_range[LANGUAGE_NONE][]['value'] = $weight['from'];
+  							}
+  							if(!empty($weight['price'])){
+  								$field_collection_item_weight->field_cost[LANGUAGE_NONE][]['value'] = $weight['price'];
+  							}
+  							$field_collection_item_weight->save();
+  							 // $field_collection_item->field_price_by_weight[LANGUAGE_NONE][]['value'] = $field_collection_item_weight->item_id;
+  				    	}
+  				    }
+  				    // add pricing plspc details
+  				    if(!empty($values['plspc'])){
+  				    	foreach($values['plspc'] as $plspc){
+  				    		$field_collection_item_plspc = entity_create('field_collection_item', array('field_name' => 'field_price_by_pl_spc'));
+  							$field_collection_item_plspc->setHostEntity('field_collection_parent', $field_collection_item);
+  							if(!empty($plspc['to'])){
+  								$field_collection_item_plspc->field_from_range[LANGUAGE_NONE][]['value'] = $plspc['to'];
+  							}
+  							if(!empty($plspc['from'])){
+  								$field_collection_item_plspc->field_to_range[LANGUAGE_NONE][]['value'] = $plspc['from'];
+  							}
+  							if(!empty($plspc['price'])){
+  								$field_collection_item_plspc->field_cost[LANGUAGE_NONE][]['value'] = $plspc['price'];
+  							}
+  							$field_collection_item_plspc->save();
+  							// $field_collection_item->field_price_by_pl_spc[LANGUAGE_NONE][]['value'] = $field_collection_item_plspc->item_id;
+  				    	}
+  				    }
+				   }
+           else{
+             $error_array[] = $values['item'].'-'.$values['origin'].'-'.$values['destination'];
+           }
+        }
+		   }
+			node_save($node);
+	    }
+    }
+    batch_set($batch);
+    drupal_set_message('Your Pricing Sheet Plan Successfully Import.');
+    if(!empty($error_array)){
+      foreach($error_array as $mistake){
+        drupal_set_message($mistake.' Error in this line.');
+      }
+    }
+  }
+
+
+function CustomerImporter_form_submit(&$form, &$form_state) {
+
+    $batch = array(
+      'title' => t('Importing CSV ...'),
+      'operations' => array(),
+      'init_message' => t('Commencing'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('An error occurred during processing'),
+      'finished' => 'csvImporter_import_finished',
+    ) ;
+    if ( isset( $form_state['values']['csvupload'] ) ) {
+      if ( $handle = fopen($form_state['values']['csvupload'], 'r') ) {
+        //$batch['operations'][] = array('_csvImporter_remember_filename', array( $form_state['values']['csvupload'] ) ) ;
+        $line_count = 1 ;
+        $first = TRUE ;
+        $line_initial = fgetcsv($handle, 4096);
+        $pricing_plan_normalised = array();
+        $last_line_title = '';
+        $last_item_to_from = '';
+        while ( $line = fgetcsv($handle, 4096) ) {
+          if($line[0] != '') {
+            $last_node_title = $line[0];
+            $pricing_plan_normalised[$last_node_title]['name_csv'] = $line[0];
+          }
+           // echo '<pre>'; print_r($line); die;
+          if($line[2] != '' && $line[7] != '') {
+            $last_line_title = $line[1];
+            $last_contact = 'contact';
+            $pricing_plan_normalised[$last_node_title][$last_contact][$last_line_title]['contact_name'] = $line[2];
+            $pricing_plan_normalised[$last_node_title][$last_contact][$last_line_title]['position'] = $line[3];
+            $pricing_plan_normalised[$last_node_title][$last_contact][$last_line_title]['mobile'] = $line[4];
+            $pricing_plan_normalised[$last_node_title][$last_contact][$last_line_title]['office_phone'] = $line[5];
+            $pricing_plan_normalised[$last_node_title][$last_contact][$last_line_title]['fax'] = $line[6];
+            $pricing_plan_normalised[$last_node_title][$last_contact][$last_line_title]['email'] = $line[7];
+          }
+          if($line[9] != '' && $line[12] != '') {
+            $last_line_title = $line[8];
+            $last_address = 'address';
+            $pricing_plan_normalised[$last_node_title][$last_address][$last_line_title]['address1'] = $line[9];
+            $pricing_plan_normalised[$last_node_title][$last_address][$last_line_title]['address2'] = $line[10];
+            $pricing_plan_normalised[$last_node_title][$last_address][$last_line_title]['suburb'] = $line[11];
+            $pricing_plan_normalised[$last_node_title][$last_address][$last_line_title]['postal'] = $line[12];
+            $pricing_plan_normalised[$last_node_title][$last_address][$last_line_title]['state'] = $line[13];
+            $pricing_plan_normalised[$last_node_title][$last_address][$last_line_title]['time'] = $line[14];
+          }
+          if($line[15] != '') {
+            $pricing_plan_normalised[$last_node_title]['business_name'] = $line[15];
+          }
+          if($line[16] != '') {
+            $pricing_plan_normalised[$last_node_title]['trading_name'] = $line[16];
+          }
+          if($line[17] != '') {
+            $pricing_plan_normalised[$last_node_title]['manager'] = $line[17];
+          }
+          if($line[18] != '') {
+            $pricing_plan_normalised[$last_node_title]['status'] = $line[18];
+          }
+          if($line[19] != '') {
+            $pricing_plan_normalised[$last_node_title]['code'] = $line[19];
+          }
+          if($line[20] != '') {
+            $pricing_plan_normalised[$last_node_title]['industry'] = $line[20];
+          }
+          if($line[21] != '') {
+            $pricing_plan_normalised[$last_node_title]['abn'] = $line[21];
+          }
+          if($line[22] != '') {
+            $pricing_plan_normalised[$last_node_title]['acn'] = $line[22];
+          }
+          if($line[23] != '') {
+            $pricing_plan_normalised[$last_node_title]['term'] = $line[23];
+          }
+          if($line[24] != '') {
+            $pricing_plan_normalised[$last_node_title]['limit'] = $line[24];
+          }
+          if($line[25] != '') {
+            $pricing_plan_normalised[$last_node_title]['method'] = $line[25];
+          }
+          if($line[26] != '') {
+            $pricing_plan_normalised[$last_node_title]['date'] = $line[26];
+          }
+          if($line[27] != '') {
+            $pricing_plan_normalised[$last_node_title]['note'] = $line[27];
+          }
+
+        }
+        fclose($handle);
+      }
+    }
+    // echo '<pre>';
+    // print_r($pricing_plan_normalised);
+    // die;
+    $uni_acc_code = array();
+     if(!empty($pricing_plan_normalised)){
+	    foreach($pricing_plan_normalised as $key => $value){
+  //      echo"<pre>"; print_r($value); die();
+	    	//create node
+      $check_code = '';
+      $code_array = db_query('SELECT * FROM {field_data_field_account_code}')->fetchAll();
+      foreach($code_array as $acc_code){
+        if($acc_code->field_account_code_value == $value['code']){
+         $uni_acc_code[] = $value['name_csv'];
+         $check_code = $value['code'];
+        }
+      }
+
+      if($check_code == ''){
+	    $node = new StdClass();
+			$node->type = 'customer';
+			$node->language = LANGUAGE_NONE;
+			node_object_prepare($node);
+			$node->title = $key;
+
+			// add contact details
+			if(!empty($value['contact'])){
+			    // save primary contact
+				if(!empty($value['contact']['Primary Contact'])){
+					$field_collection_item = entity_create('field_collection_item', array('field_name' => 'field_primary_contact'));
+					$field_collection_item->setHostEntity('node', $node);
+					if(!empty($value['contact']['Primary Contact']['contact_name']) && !empty($value['contact']['Primary Contact']['email'])){
+						$field_collection_item->field_contact_name[LANGUAGE_NONE][0]['value'] = $value['contact']['Primary Contact']['contact_name'];
+						$field_collection_item->field_postion[LANGUAGE_NONE][0]['value'] = $value['contact']['Primary Contact']['position'];
+						$field_collection_item->field_mobile[LANGUAGE_NONE][0]['value'] = $value['contact']['Primary Contact']['mobile'];
+						$field_collection_item->field_office_phone[LANGUAGE_NONE][0]['value'] = $value['contact']['Primary Contact']['office_phone'];
+            if (is_numeric($value['contact']['Primary Contact']['fax'])) {
+						 $field_collection_item->field_fax[LANGUAGE_NONE][0]['value'] = $value['contact']['Primary Contact']['fax'];
+            }
+						$field_collection_item->field_email[LANGUAGE_NONE][0]['value'] = $value['contact']['Primary Contact']['email'];
+					}
+					$field_collection_item->save();
+					$node->field_primary_contact[LANGUAGE_NONE][]['value'] = $field_collection_item->item_id;
+				}
+
+				// save secondary contact
+				if(!empty($value['contact']['Secondary Contact'])){
+					$field_collection_item_sec = entity_create('field_collection_item', array('field_name' => 'field_secondary_contact'));
+					$field_collection_item_sec->setHostEntity('node', $node);
+					if(!empty($value['contact']['Secondary Contact']['contact_name']) && !empty($value['contact']['Secondary Contact']['email'])){
+						$field_collection_item_sec->field_contact_name[LANGUAGE_NONE][0]['value'] = $value['contact']['Secondary Contact']['contact_name'];
+						$field_collection_item_sec->field_postion[LANGUAGE_NONE][0]['value'] = $value['contact']['Secondary Contact']['position'];
+						$field_collection_item_sec->field_mobile[LANGUAGE_NONE][0]['value'] = $value['contact']['Secondary Contact']['mobile'];
+						$field_collection_item_sec->field_office_phone[LANGUAGE_NONE][0]['value'] = $value['contact']['Secondary Contact']['office_phone'];
+            if (is_numeric($value['contact']['Secondary Contact']['fax'])) {
+             $field_collection_item_sec->field_fax[LANGUAGE_NONE][0]['value'] = $value['contact']['Secondary Contact']['fax'];
+            }
+						$field_collection_item_sec->field_email[LANGUAGE_NONE][0]['value'] = $value['contact']['Secondary Contact']['email'];
+					}
+					$field_collection_item_sec->save();
+					$node->field_secondary_contact[LANGUAGE_NONE][]['value'] = $field_collection_item_sec->item_id;
+				}
+
+				// save other contact
+				if(!empty($value['contact']['Other Contact'])){
+					$field_collection_item_other = entity_create('field_collection_item', array('field_name' => 'field_other_contact'));
+					$field_collection_item_other->setHostEntity('node', $node);
+					if(!empty($value['contact']['Other Contact']['contact_name']) && !empty($value['contact']['Other Contact']['email'])){
+						$field_collection_item_other->field_contact_name[LANGUAGE_NONE][0]['value'] = $value['contact']['Other Contact']['contact_name'];
+						$field_collection_item_other->field_postion[LANGUAGE_NONE][0]['value'] = $value['contact']['Other Contact']['position'];
+						$field_collection_item_other->field_mobile[LANGUAGE_NONE][0]['value'] = $value['contact']['Other Contact']['mobile'];
+						$field_collection_item_other->field_office_phone[LANGUAGE_NONE][0]['value'] = $value['contact']['Other Contact']['office_phone'];
+            if (is_numeric($value['contact']['Other Contact']['fax'])) {
+             $field_collection_item_other->field_fax[LANGUAGE_NONE][0]['value'] = $value['contact']['Other Contact']['fax'];
+            }
+						$field_collection_item_other->field_email[LANGUAGE_NONE][0]['value'] = $value['contact']['Other Contact']['email'];
+					}
+					$field_collection_item_other->save();
+					$node->field_other_contact[LANGUAGE_NONE][]['value'] = $field_collection_item_other->item_id;
+				}
+
+		    }
+
+
+		    // add address details
+			if(!empty($value['address'])){
+			    // save primary contact
+				if(!empty($value['address']['Primary address'])){
+					$field_collection_item_padd = entity_create('field_collection_item', array('field_name' => 'field_primary_address'));
+					$field_collection_item_padd->setHostEntity('node', $node);
+					if(!empty($value['address']['Primary address']['address1']) && !empty($value['address']['Primary address']['postal'])){
+						$field_collection_item_padd->field_address_line_1[LANGUAGE_NONE][0]['value'] = $value['address']['Primary address']['address1'];
+						$field_collection_item_padd->field_address_line_2[LANGUAGE_NONE][0]['value'] = $value['address']['Primary address']['address2'];
+						$field_collection_item_padd->field_suburb_[LANGUAGE_NONE][0]['value'] = $value['address']['Primary address']['suburb'];
+						$field_collection_item_padd->field_postal_code_[LANGUAGE_NONE][0]['value'] = $value['address']['Primary address']['postal'];
+						$field_collection_item_padd->field_state[LANGUAGE_NONE][0]['value'] = $value['address']['Primary address']['state'];
+            if($value['address']['Primary address']['time'] != ''){
+              $time_array = explode(" ",$value['address']['Primary address']['time']);
+              $time_divide = explode(':', $time_array[0]);
+              $time = $time_divide[0] * 3600 + $time_divide[1] * 60 + $time_divide[2];
+              if($time_array[1] == 'AM'){
+                $total_time = $time;
+              }
+              else{
+                $total_time = 43200 + $time;
+              }
+              $field_collection_item_padd->field_closing[LANGUAGE_NONE][0]['value'] = $total_time;
+            }
+					}
+					$field_collection_item_padd->save();
+					$node->field_primary_address[LANGUAGE_NONE][]['value'] = $field_collection_item_padd->item_id;
+				}
+
+				// save Business contact
+				if(!empty($value['address']['Business Address'])){
+					$field_collection_item_badd = entity_create('field_collection_item', array('field_name' => 'field_business_address'));
+					$field_collection_item_badd->setHostEntity('node', $node);
+					if(!empty($value['address']['Business Address']['address1']) && !empty($value['address']['Business Address']['postal'])){
+						$field_collection_item_badd->field_address_line_1[LANGUAGE_NONE][0]['value'] = $value['address']['Business Address']['address1'];
+						$field_collection_item_badd->field_address_line_2[LANGUAGE_NONE][0]['value'] = $value['address']['Business Address']['address2'];
+						$field_collection_item_badd->field_suburb_[LANGUAGE_NONE][0]['value'] = $value['address']['Business Address']['suburb'];
+						$field_collection_item_badd->field_postal_code_[LANGUAGE_NONE][0]['value'] = $value['address']['Business Address']['postal'];
+						$field_collection_item_badd->field_state[LANGUAGE_NONE][0]['value'] = $value['address']['Business Address']['state'];
+            if($value['address']['Business Address']['time'] != ''){
+              $time_array = explode(" ",$value['address']['Business Address']['time']);
+              $time_divide = explode(':', $time_array[0]);
+              $time = $time_divide[0] * 3600 + $time_divide[1] * 60 + $time_divide[2];
+              if($time_array[1] == 'AM'){
+                $total_time = $time;
+              }
+              else{
+                $total_time = 43200 + $time;
+              }
+              $field_collection_item_badd->field_closing[LANGUAGE_NONE][0]['value'] = $total_time;
+            }
+					}
+					$field_collection_item_badd->save();
+					$node->field_business_address[LANGUAGE_NONE][]['value'] = $field_collection_item_badd->item_id;
+				}
+
+				// save Residential contact
+				if(!empty($value['address']['Residential Address'])){
+					$field_collection_item_radd = entity_create('field_collection_item', array('field_name' => 'field_residential_address'));
+					$field_collection_item_radd->setHostEntity('node', $node);
+					if(!empty($value['address']['Residential Address']['address1']) && !empty($value['address']['Residential Address']['postal'])){
+						$field_collection_item_radd->field_address_line_1[LANGUAGE_NONE][0]['value'] = $value['address']['Residential Address']['address1'];
+						$field_collection_item_radd->field_address_line_2[LANGUAGE_NONE][0]['value'] = $value['address']['Residential Address']['address2'];
+						$field_collection_item_radd->field_suburb_[LANGUAGE_NONE][0]['value'] = $value['address']['Residential Address']['suburb'];
+						$field_collection_item_radd->field_postal_code_[LANGUAGE_NONE][0]['value'] = $value['address']['Residential Address']['postal'];
+						$field_collection_item_radd->field_state[LANGUAGE_NONE][0]['value'] = $value['address']['Residential Address']['state'];
+            if($value['address']['Residential Address']['time'] != ''){
+              $time_array = explode(" ",$value['address']['Residential Address']['time']);
+              $time_divide = explode(':', $time_array[0]);
+              $time = $time_divide[0] * 3600 + $time_divide[1] * 60 + $time_divide[2];
+              if($time_array[1] == 'AM'){
+                $total_time = $time;
+              }
+              else{
+                $total_time = 43200 + $time;
+              }
+              $field_collection_item_radd->field_closing[LANGUAGE_NONE][0]['value'] = $total_time;
+            }
+					}
+					$field_collection_item_radd->save();
+					$node->field_residential_address[LANGUAGE_NONE][]['value'] = $field_collection_item_radd->item_id;
+				}
+
+				// save Other contact
+				if(!empty($value['address']['Other Address'])){
+					$field_collection_item_oadd = entity_create('field_collection_item', array('field_name' => 'field_other_address'));
+					$field_collection_item_oadd->setHostEntity('node', $node);
+					if(!empty($value['address']['Other Address']['address1']) && !empty($value['address']['Other Address']['postal'])){
+						$field_collection_item_oadd->field_address_line_1[LANGUAGE_NONE][0]['value'] = $value['address']['Other Address']['address1'];
+						$field_collection_item_oadd->field_address_line_2[LANGUAGE_NONE][0]['value'] = $value['address']['Other Address']['address2'];
+						$field_collection_item_oadd->field_suburb_[LANGUAGE_NONE][0]['value'] = $value['address']['Other Address']['suburb'];
+						$field_collection_item_oadd->field_postal_code_[LANGUAGE_NONE][0]['value'] = $value['address']['Other Address']['postal'];
+						$field_collection_item_oadd->field_state[LANGUAGE_NONE][0]['value'] = $value['address']['Other Address']['state'];
+            if($value['address']['Other Address']['time'] != ''){
+              $time_array = explode(" ",$value['address']['Other Address']['time']);
+              $time_divide = explode(':', $time_array[0]);
+              $time = $time_divide[0] * 3600 + $time_divide[1] * 60 + $time_divide[2];
+              if($time_array[1] == 'AM'){
+                $total_time = $time;
+              }
+              else{
+                $total_time = 43200 + $time;
+              }
+              $field_collection_item_oadd->field_closing[LANGUAGE_NONE][0]['value'] = $total_time;
+            }
+					}
+					$field_collection_item_oadd->save();
+					$node->field_other_address[LANGUAGE_NONE][]['value'] = $field_collection_item_oadd->item_id;
+				}
+
+
+		    }
+		    // add account details
+		    if(!empty($value['business_name'])){
+					$field_collection_item_acdt = entity_create('field_collection_item', array('field_name' => 'field_account_details'));
+					$field_collection_item_acdt->setHostEntity('node', $node);
+						$field_collection_item_acdt->field_busines_name[LANGUAGE_NONE][0]['value'] = $value['business_name'];
+						$field_collection_item_acdt->field_trading_name[LANGUAGE_NONE][0]['value'] = $value['trading_name'];
+						$field_collection_item_acdt->field_account_manager[LANGUAGE_NONE][0]['value'] = $value['manager'];
+            $status_name = taxonomy_get_term_by_name($value['status']);
+            foreach($status_name as $term_status){
+              if($term_status->vocabulary_machine_name == 'account_status'){
+               $status_id = $term_status->tid;
+              }
+            }
+            if(!empty($status_name) && $status_id != ''){
+              $field_collection_item_acdt->field_account_status[LANGUAGE_NONE][0]['tid'] = $status_id;
+            }
+						$field_collection_item_acdt->field_account_code[LANGUAGE_NONE][0]['value'] = $value['code'];
+            $industry_name = taxonomy_get_term_by_name($value['industry']);
+            foreach($industry_name as $term_ind){
+              if($term_ind->vocabulary_machine_name == 'industry'){
+               $industry_id = $term_ind->tid;
+              }
+            }
+            if(!empty($industry_name) && $industry_id != ''){
+              $field_collection_item_acdt->field_industry[LANGUAGE_NONE][0]['target_id'] = $industry_id;
+            }
+            if(is_numeric($value['abn'])){
+              $field_collection_item_acdt->field_abn[LANGUAGE_NONE][0]['value'] = $value['abn'];
+            }
+            if(is_numeric($value['acn'])){
+							$field_collection_item_acdt->field_acn[LANGUAGE_NONE][0]['value'] = $value['acn'];
+            }
+            $pay_name = taxonomy_get_term_by_name($value['term']);
+            foreach($pay_name as $term_pay){
+              if($term_pay->vocabulary_machine_name == 'payment_terms'){
+               $pay_id = $term_pay->tid;
+              }
+            }
+            if(!empty($pay_name) && $pay_id != ''){
+              $field_collection_item_acdt->field_payment_terms[LANGUAGE_NONE][0]['tid'] = $pay_id;
+            }
+            if(is_numeric($value['limit'])){
+						  $field_collection_item_acdt->field_credit_limit[LANGUAGE_NONE][0]['value'] = $value['limit'];
+            }
+            $method_name = taxonomy_get_term_by_name($value['method']);
+            foreach($method_name as $term_method){
+              if($term_method->vocabulary_machine_name == 'billing_method'){
+               $method_id = $term_method->tid;
+              }
+            }
+            if(!empty($industry_name) && $method_id != ''){
+              $field_collection_item_acdt->field_billing_method[LANGUAGE_NONE][0]['target_id'] = $method_id;
+            }
+
+            if($value['date'] != ''){
+              $date_format = strtotime($value['date']);
+              $date = date('Y-m-d', $date_format);
+              if($date_format == '1970-01-01'){
+                $field_collection_item_acdt->field_review_date[LANGUAGE_NONE][0]['value'] = date("Y-m-d");
+              }
+              else{
+                $field_collection_item_acdt->field_review_date[LANGUAGE_NONE][0]['value'] = $date;
+              }
+            }
+
+
+					$field_collection_item_acdt->save();
+					$node->field_account_details[LANGUAGE_NONE][]['value'] = $field_collection_item_acdt->item_id;
+				}
+				$node->field_notes[LANGUAGE_NONE][]['value'] = $value['note'];
+
+			node_save($node);
+	    }
+     }
+    }
+    batch_set($batch);
+    drupal_set_message('Your Customer Sheet Successfully Import.');
+    if(!empty($uni_acc_code)){
+      foreach($uni_acc_code as $mistake){
+        drupal_set_message($mistake.' Error in this line because Your Account Code is already Saved.');
+      }
+    }
+  }
+  /*function CustomerImporter_form_submit(&$form, &$form_state) {
+
+    $batch = array(
+      'title' => t('Importing CSV ...'),
+      'operations' => array(),
+      'init_message' => t('Commencing'),
+      'progress_message' => t('Processed @current out of @total.'),
+      'error_message' => t('An error occurred during processing'),
+      'finished' => 'csvImporter_import_finished',
+    ) ;
+    if ( isset( $form_state['values']['csvupload'] ) ) {
+      if ( $handle = fopen($form_state['values']['csvupload'], 'r') ) {
+        //$batch['operations'][] = array('_csvImporter_remember_filename', array( $form_state['values']['csvupload'] ) ) ;
+        $line_count = 1 ;
+        $first = TRUE ;
+        $line_initial = fgetcsv($handle, 4096);
+        $pricing_plan_normalised = array();
+        $last_line_title = '';
+        $last_item_to_from = '';
+        while ( $line = fgetcsv($handle, 4096) ) {
+          if($line[0] != '') {
+            $last_node_title = $line[0];
+          }
+          if($line[1] != '' && $line[2] != '' && $line[3] != '') {
+            $last_line_title = $line[1].'/'.$line[2].'/'.$line[3];
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['item'] = $line[1];
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['origin'] = $line[2];
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['destination'] = $line[3];
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['reversal'] = $line[10];
+          }
+          if($line[4] != '') {
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['weight'][] = array('to' => $line[4], 'from' => $line[5], 'price' => $line[6]);
+          }
+          if($line[7] != '') {
+            $pricing_plan_normalised[$last_node_title][$last_line_title]['plspc'][] = array('to' => $line[7], 'from' => $line[8],'price' => $line[9]);
+          }
+          //$batch['operations'][] = array('_csvImporter_create_nodes', array(array_map('base64_encode', $line)));
+        }
+        fclose($handle);
+      }
+    }
+    dpm($pricing_plan_normalised);
+    batch_set($batch);
+  }*/
+
+  function csvImporter_import_finished($success, $results, $operations) {
+    if ( !empty($results['failed_rows']) ) {
+      $dir  = file_directory_path() . '/csvImporter/' ;
+      if ( file_check_directory( $dir, FILE_CREATE_DIRECTORY ) ) {
+        $csv_filename = 'failed_rows-'. basename($results['uploaded_filename']);
+        $csv_filepath = $dir .'/'. $csv_filename;
+        $targs = array(
+          '!csv_url' => l(check_plain($csv_filename), $csv_filepath),
+          '%csv_filename' => $csv_filename,
+          '%csv_filepath' => $csv_filepath,
+        ) ;
+        if ( $handle = fopen($csv_filepath, 'w+') ) {
+          foreach( $results['failed_rows'] as $failed_row ) {
+            fputcsv($handle, $failed_row);
+          }
+          fclose($handle);
+          drupal_set_message(t('Some rows failed to import. You may download a CSV of these rows: !csv_url', $targs), 'error');
+        }
+        else {
+          drupal_set_message(t('Some rows failed to import, but unable to write error CSV to %csv_filepath', $targs), 'error');
+        }
+      }
+      else {
+        drupal_set_message(t('Some rows failed to import, but unable to create directory for error CSV at %csv_directory', $targs), 'error');
+      }
+    }
+    return t('The CSV import has completed.');
+  }
+
+
+  function _csvImporter_remember_filename($filename, &$context) {
+    $context['results']['uploaded_filename'] = $filename;
+  }
+
+  function _csvImporter_import_line($line, $session_nid, &$context) {
+
+    $context['results']['rows_imported']++;
+    $line = $cleaned_line = array_map('base64_decode', $line);
+      $context['message'] = t('Importing row !c', array( '!c' => $context['results']['rows_imported'] ));
+      $context['message'] = t('Importing %title', array('%title' => $line[0]));
+
+      drupal_set_message("Parsed line {$line[0]}");
+  }
+
+function _csvImporter_create_nodes($line, $session_nid, &$context) {
+  $context['results']['rows_imported']++;
+  $line = array_map('base64_decode', $line);
+
+  if($line[0] == '') {
+    return;
+  }
+
+  $query = new EntityFieldQuery();
+  $entities = $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'pricing')
+    ->propertyCondition('title', $line[0])
+    ->propertyCondition('status', 1)
+    ->range(0,1)
+    ->execute();
+
+  if (!empty($entities['node'])) {
+    $node = node_load(array_shift(array_keys($entities['node'])));
+  }
+  else {
+    $node = new stdClass();
+    $node->type = 'pricing';
+    $node->title = $line[0];
+    $node->language = LANGUAGE_NONE;
+    node_object_prepare($node);
+  }
+  node_save($node);
+
+  if(!empty($line[1]) && !empty($line[2]) && !empty($line[3])) {
+    $item = $line[1];
+    $terms = taxonomy_get_term_by_name($item);
+    $terms = array_values($terms);
+
+    if(!empty($terms)) {
+      $item = $terms[0];
+    }
+
+    $sender = $line[2];
+    $terms = taxonomy_get_term_by_name($sender);
+    $terms = array_values($terms);
+
+    if(!empty($terms)) {
+      $sender = $terms[0];
+    }
+
+    $receiver = $line[3];
+    $terms = taxonomy_get_term_by_name($receiver);
+    $terms = array_values($terms);
+
+    if(!empty($terms)) {
+      $receiver = $terms[0];
+    }
+
+    $query = "SELECT pd.field_pricing_details_value FROM {field_data_field_item_type} it LEFT JOIN {field_data_field_sender_branch} sb ON it.entity_id = sb.entity_id LEFT JOIN {field_data_field_receiver_branch} rb ON it.entity_id = rb.entity_id LEFT JOIN {field_data_field_pricing_details} pd ON it.entity_id = pd.field_pricing_details_value WHERE it.field_item_type_target_id = :item_id AND sb.field_sender_branch_target_id = :sender AND rb.field_receiver_branch_target_id = :receiver AND pd.entity_id = :entity_id";
+    $existing = db_query($query, array(':item_id' => $item->tid, ':sender' => $sender->tid, ':receiver' => $receiver->tid, ':entity_id' => $node->nid))->fetchCol();
+
+
+    if(!empty($existing)){
+    	$prc_itm = field_collection_item_load($existing[0]);
+    }
+    else {
+      $prc_itm = entity_create('field_collection_item', array('field_name' => 'field_pricing_details'));
+      $prc_itm->setHostEntity('node', $node);
+    }
+
+    $item = $line[1];
+    $terms = taxonomy_get_term_by_name($item);
+    $terms = array_values($terms);
+
+    if(!empty($terms)) {
+      $item = $terms[0];
+      $prc_itm->field_item_type['und'][0]['target_id'] = $item->tid;
+    }
+
+    $sender = $line[2];
+    $terms = taxonomy_get_term_by_name($sender);
+    $terms = array_values($terms);
+
+    if(!empty($terms)) {
+      $sender = $terms[0];
+      $prc_itm->field_sender_branch['und'][0]['target_id'] = $sender->tid;
+    }
+
+    $receiver = $line[3];
+    $terms = taxonomy_get_term_by_name($receiver);
+    $terms = array_values($terms);
+
+    if(!empty($terms)) {
+      $receiver = $terms[0];
+      $prc_itm->field_receiver_branch['und'][0]['target_id'] = $receiver->tid;
+    }
+
+    $prc_itm->save();
+
+    if(!empty($line[4]) || !empty($line[5]) || !empty($line[6])) {
+      $fc_by_wt = entity_create('field_collection_item', array('field_name' => 'field_price_by_weight'));
+      $fc_by_wt->setHostEntity('field_collection_item', $prc_itm);
+
+      if(!empty($line[4])){
+        $fc_by_wt->field_from_range['und'][0]['value'] = $line[4];
+      }
+      if(!empty($line[5])){
+        $fc_by_wt->field_to_range['und'][0]['value'] = $line[5];
+      }
+      if(!empty($line[6])){
+        $fc_by_wt->field_cost['und'][0]['value'] = $line[6];
+      }
+      $fc_by_wt->save();
+    }
+
+    if(!empty($line[7]) || !empty($line[8]) || !empty($line[9])) {
+      $fc_by_pl_spc = entity_create('field_collection_item', array('field_name' => 'field_price_by_pl_spc'));
+      $fc_by_pl_spc->setHostEntity('field_collection_item', $prc_itm);
+
+      if(!empty($line[7])){
+        $fc_by_pl_spc->field_from_range['und'][0]['value'] = $line[7];
+      }
+      if(!empty($line[8])){
+        $fc_by_pl_spc->field_to_range['und'][0]['value'] = $line[8];
+      }
+      if(!empty($line[9])){
+        $fc_by_pl_spc->field_cost['und'][0]['value'] = $line[9];
+      }
+      $fc_by_pl_spc->save();
+    }
+  }
+  if(!empty($line[10])){
+    $node->field_pickup_fee['und'][0]['value'] = $line[10];
+  }
+  if(!empty($line[11])){
+    $node->field_delivery_fee['und'][0]['value'] = $line[11];
+  }
+  if(!empty($line[12])){
+    $node->field_con_fee['und'][0]['value'] = $line[12];
+  }
+  if(!empty($line[13])){
+    $node->field_fuel_levy['und'][0]['value'] = $line[13];
+  }
+  if(!empty($line[14])){
+    $node->field_futile_pickup_fee['und'][0]['value'] = $line[14];
+  }
+  if(!empty($line[15])){
+    $node->field_discount['und'][0]['value'] = $line[15];
+  }
+  node_save($node);
+ }
+
+ function _csvImporter_create_node($line, $session_nid, &$context) {
+    $context['results']['rows_imported']++;
+    $line = $cleaned_line = array_map('base64_decode', $line);
+
+    $context['message'] = t('Importing row !c', array( '!c' => $context['results']['rows_imported'] ));
+    $context['message'] = t('Importing %title', array('%title' => $line[0]));
+
+    $query = new EntityFieldQuery();
+    $entities = $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'pricing')
+    ->propertyCondition('title', $line[0])
+    ->propertyCondition('status', 1)
+    ->range(0,1)
+    ->execute();
+
+    if (!empty($entities['node'])) {
+      $node = node_load(array_shift(array_keys($entities['node'])));
+    }
+    else {
+      $node = new stdClass();
+      $node->type = 'pricing';
+      $node->language = LANGUAGE_NONE;
+      node_object_prepare($node);
+    }
+
+    if(!empty($line[0])){
+      $node->title = $line[0];
+    }
+
+    if(!empty($line[1]) && !empty($line[2]) && !empty($line[3])) {
+      $item_id = db_query('SELECT field_pricing_details_value FROM {field_data_field_pricing_details} WHERE entity_id = :nid', array(':nid' => $node->nid))->fetchField();
+      if(isset($item_id)) {
+        $item_type_name = taxonomy_get_term_by_name($line[1]);
+        foreach($item_type_name as $value){
+          $tid1 = $value->tid;
+        }
+        $item_from = taxonomy_get_term_by_name($line[2]);
+        foreach($item_from as $value){
+          $tid2 = $value->tid;
+        }
+        $item_to = taxonomy_get_term_by_name($line[3]);
+        foreach($item_to as $value){
+          $tid3 = $value->tid;
+        }
+        $query =  new EntityFieldQuery;
+        $entities = $query->entityCondition('entity_type', 'field_collection_item')
+          ->entityCondition('bundle', 'field_pricing_details')
+          ->propertyCondition('item_id', $item_id)
+          ->fieldCondition('field_item_type', 'target_id', $tid1)
+          ->fieldCondition('field_sender_branch', 'target_id', $tid2)
+          ->fieldCondition('field_receiver_branch', 'target_id', $tid3)
+          ->range(0,1)
+          ->execute();
+          if(!empty($entities['field_collection_item'])){
+            dpm("load");
+            $my_collection = field_collection_item_load(array_shift(array_keys($entities['field_collection_item'])));
+          }
+          else {
+            dpm("item id");
+          $my_collection = entity_create('field_collection_item', array('field_name' => 'field_pricing_details'));
+          $my_collection->setHostEntity('node', $node);
+          }
+      }
+    }
+    if(isset($my_collection)) {
+      dpm($my_collection);
+      if(!empty($line[1])){
+        if($line[1] == "Box"){
+        $my_collection->field_item_type[LANGUAGE_NONE][0]['target_id'] = 24;
+        }
+        if($line[1] == "Carton"){
+        $my_collection->field_item_type[LANGUAGE_NONE][0]['target_id'] = 25;
+        }
+        if($line[1] == "Pallet"){
+        $my_collection->field_item_type[LANGUAGE_NONE][0]['target_id'] = 26;
+        }
+        if($line[1] == "Pallet-Chiller"){
+        $my_collection->field_item_type[LANGUAGE_NONE][0]['target_id'] = 27;
+        }
+        if($line[1] == "Skid"){
+        $my_collection->field_item_type[LANGUAGE_NONE][0]['target_id'] = 28;
+        }
+      }
+
+      if(!empty($line[2])){
+        if($line[2] == "Brisbane"){
+        $my_collection->field_sender_branch[LANGUAGE_NONE][0]['target_id'] = 34;
+        }
+        if($line[2] == "Charleville"){
+        $my_collection->field_sender_branch[LANGUAGE_NONE][0]['target_id'] = 30;
+        }
+        if($line[2] == "Dalby"){
+        $my_collection->field_sender_branch[LANGUAGE_NONE][0]['target_id'] = 31;
+        }
+        if($line[2] == "Roma"){
+        $my_collection->field_sender_branch[LANGUAGE_NONE][0]['target_id'] = 32;
+        }
+        if($line[2] == "Sydney"){
+        $my_collection->field_sender_branch[LANGUAGE_NONE][0]['target_id'] = 33;
+        }
+        if($line[2] == "Toowoomba"){
+        $my_collection->field_sender_branch[LANGUAGE_NONE][0]['target_id'] = 29;
+        }
+      }
+
+      if(!empty($line[3])){
+        if($line[3] == "Brisbane"){
+        $my_collection->field_receiver_branch[LANGUAGE_NONE][0]['target_id'] = 34;
+        }
+        if($line[3] == "Charleville"){
+        $my_collection->field_receiver_branch[LANGUAGE_NONE][0]['target_id'] = 30;
+        }
+        if($line[3] == "Dalby"){
+        $my_collection->field_receiver_branch[LANGUAGE_NONE][0]['target_id'] = 31;
+        }
+        if($line[3] == "Roma"){
+        $my_collection->field_receiver_branch[LANGUAGE_NONE][0]['target_id'] = 32;
+        }
+        if($line[3] == "Sydney"){
+        $my_collection->field_receiver_branch[LANGUAGE_NONE][0]['target_id'] = 33;
+        }
+        if($line[3] == "Toowoomba"){
+        $my_collection->field_receiver_branch[LANGUAGE_NONE][0]['target_id'] = 29;
+        }
+      }
+      $my_collection1 = entity_create('field_collection_item', array('field_name' => 'field_price_by_weight'));
+      $my_collection1->setHostEntity('field_collection_item', $my_collection);
+        if(!empty($line[4])){
+          $my_collection1->field_from_range[LANGUAGE_NONE][0]['value'] = $line[4];
+        }
+        if(!empty($line[5])){
+          $my_collection1->field_to_range[LANGUAGE_NONE][0]['value'] = $line[5];
+        }
+        if(!empty($line[6])){
+          $my_collection1->field_cost[LANGUAGE_NONE][0]['value'] = $line[6];
+        }
+        $my_collection1->save();
+        $my_collection->field_price_by_weight[LANGUAGE_NONE][0]['value'] = $my_collection1->item_id;
+
+        $my_collection2 = entity_create('field_collection_item', array('field_name' => 'field_price_by_pl_spc'));
+        $my_collection2->setHostEntity('field_collection_item', $my_collection);
+        if(!empty($line[7])){
+          $my_collection2->field_from_range[LANGUAGE_NONE][0]['value'] = $line[7];
+        }
+        if(!empty($line[8])){
+          $my_collection2->field_to_range[LANGUAGE_NONE][0]['value'] = $line[8];
+        }
+        if(!empty($line[9])){
+          $my_collection2->field_cost[LANGUAGE_NONE][0]['value'] = $line[9];
+        }
+        $my_collection2->save();
+        $my_collection->field_price_by_pl_spc[LANGUAGE_NONE][0]['value'] = $my_collection2->item_id;
+
+      $my_collection->save();
+      $node->field_pricing_details[LANGUAGE_NONE][0]['value'] = $my_collection->item_id;
+    }
+
+    /*    $my_collection1 = entity_create('field_collection_item', array('field_name' => 'field_price_by_weight'));
+        $my_collection1->setHostEntity('field_collection_item', $my_collection);
+        if(!empty($line[4])){
+          $my_collection1->field_from_range[$node->language][0]['value'] = $line[4];
+        }
+        if(!empty($line[5])){
+          $my_collection1->field_to_range[$node->language][0]['value'] = $line[5];
+        }
+        if(!empty($line[6])){
+          $my_collection1->field_cost[$node->language][0]['value'] = $line[6];
+        }
+
+        $my_collection1->save();
+        $my_collection->field_price_by_weight[$node->language][0]['value'] = $my_collection1->item_id;
+
+        $my_collection2 = entity_create('field_collection_item', array('field_name' => 'field_price_by_pl_spc'));
+        $my_collection2->setHostEntity('field_collection_item', $my_collection);
+        if(!empty($line[7])){
+          $my_collection2->field_from_range[$node->language][0]['value'] = $line[7];
+        }
+        if(!empty($line[8])){
+          $my_collection2->field_to_range[$node->language][0]['value'] = $line[8];
+        }
+        if(!empty($line[9])){
+          $my_collection2->field_cost[$node->language][0]['value'] = $line[9];
+        }
+
+        $my_collection2->save();
+        $my_collection->field_price_by_pl_spc[$node->language][0]['value'] = $my_collection2->item_id;
+
+    $my_collection->save();
+    $node->field_pricing_details[LANGUAGE_NONE][0]['value'] = $my_collection->item_id;
+    */
+
+    if(!empty($line[10])){
+      $node->field_pickup_fee[$node->language][0]['value'] = $line[10];
+    }
+    if(!empty($line[11])){
+      $node->field_delivery_fee[$node->language][0]['value'] = $line[11];
+    }
+    if(!empty($line[12])){
+      $node->field_con_fee[$node->language][0]['value'] = $line[12];
+    }
+    if(!empty($line[13])){
+      $node->field_fuel_levy[$node->language][0]['value'] = $line[13];
+    }
+    if(!empty($line[14])){
+      $node->field_futile_pickup_fee[$node->language][0]['value'] = $line[14];
+    }
+    if(!empty($line[15])){
+      $node->field_discount[$node->language][0]['value'] = $line[15];
+    }
+
+  $node->status = 1;
+  $node->promote = 0;
+  $node->sticky = 0;
+  $node->comment = 1;
+
+  $node->uid = 1;
+
+  $node->date = 'complaint_post_date';
+  $node->created = strtotime('complaint_post_date');
+
+  node_save($node);
+
+
+  }

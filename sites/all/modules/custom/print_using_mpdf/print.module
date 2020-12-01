@@ -1,0 +1,46 @@
+<?php
+
+function print_menu(){
+	$items = array();
+	$items['job/data/print/pdf'] = array(
+        'page callback'=>'job_data_print_pdf',
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('access content'),
+    );
+    $items['manifest/data/print/pdf'] = array(
+        'page callback'=>'manifest_data_print_pdf',
+        'type' => MENU_CALLBACK,
+        'access arguments' => array('access content'),
+    );
+    return $items;
+}
+
+function job_data_print_pdf(){
+  $html = theme('job_print');
+  $page_id = $_GET['job_id'];
+  $node = node_load($page_id);
+  $conote = $node->field_connote_no['und'][0]['value'];
+  pdf_using_mpdf_api($html, $conote, 'job');
+
+}
+
+function manifest_data_print_pdf(){
+  $html = theme('manifest_print');
+  //$page_id = $_GET['nid'];
+  pdf_using_mpdf_api($html, 'abc');
+}
+
+
+//custom theme
+function print_theme(){
+    return array(
+        'job_print' => array(
+         'template' => 'job-print',
+         'path' => drupal_get_path('module', 'print') . '/templates',
+        ),
+         'manifest_print' => array(
+         'template' => 'manifest-print',
+         'path' => drupal_get_path('module', 'print') . '/templates',
+        ),
+    );
+}

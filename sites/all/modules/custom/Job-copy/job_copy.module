@@ -1,0 +1,370 @@
+<?php
+function job_copy_menu(){
+  $items = array();
+  $items['create-copy-job/%'] = array(
+    'page callback' => 'create_copy_job',
+    'access callback' => TRUE,
+    'page arguments' => array(1),
+  );
+  $items['create-copy-pricing/%'] = array(
+    'page callback' => 'create_copy_pricing',
+    'access callback' => TRUE,
+    'page arguments' => array(1),
+  );
+  $items['create-copy-customer/%'] = array(
+    'page callback' => 'create_copy_customer',
+    'access callback' => TRUE,
+    'page arguments' => array(1),
+  );
+  return $items;
+}
+
+function create_copy_job($nid) {
+    $node_load = node_load($nid);
+    if($node_load->type == 'job'){
+    $check_status = $node_load->status;
+    if($check_status == 1){
+      unset($node_load->nid);
+      unset($node_load->vid);
+      unset($node_load->field_job_type);
+      unset($node_load->field_job_status);
+      unset($node_load->field_assigned_driver);
+      unset($node_load->field_current_branch);
+      unset($node_load->field_sender_branch);
+      unset($node_load->field_receiver_branch);
+      unset($node_load->field_items);
+      unset($node_load->field_total_price);
+      unset($node_load->field_ready);
+      unset($node_load->field_ready_time);
+      unset($node_load->field_reference);
+      unset($node_load->field_invoice_no);
+      unset($node_load->field_in_chep);
+      unset($node_load->field_in_loscam);
+      unset($node_load->field_out_chep);
+      unset($node_load->field_out_loscam);
+      unset($node_load->field_load_restraints);
+      unset($node_load->field_pickup_notes);
+      unset($node_load->field_delivery_notes);
+      unset($node_load->field_collection_charge);
+      unset($node_load->field_charge_collector_name);
+      unset($node_load->field_cost);
+      unset($node_load->field_delivery_status);
+      node_save($node_load);
+      drupal_goto('node/'.$node_load->nid.'/edit');
+    }else{
+      drupal_set_message('Submit form to save values and then click to copy.');
+      drupal_goto('node/'.$nid.'/edit');
+    }
+  }
+}
+
+function create_copy_pricing($nid) {
+    $node_load = node_load($nid);
+    if($node_load->type == 'pricing'){
+      $check_status = $node_load->status;
+      if($check_status == 1){
+        unset($node_load->nid);
+        unset($node_load->vid);
+        node_save($node_load);
+        drupal_goto('node/'.$node_load->nid.'/edit');
+      }else{
+        drupal_set_message('Submit form to save values and then click to copy.');
+        drupal_goto('node/'.$nid.'/edit');
+      }
+    }
+}
+
+function create_copy_customer($nid) {
+    $node_load = node_load($nid);
+    if($node_load->type == 'customer'){
+      $check_status = $node_load->status;
+      if($check_status == 1){
+        unset($node_load->nid);
+        unset($node_load->vid);
+        node_save($node_load);
+        drupal_goto('node/'.$node_load->nid.'/edit');
+      }else{
+        drupal_set_message('Submit form to save values and then click to copy.');
+        drupal_goto('node/'.$nid.'/edit');
+      }
+    }
+}
+
+function job_copy_form_alter(&$form, &$form_state, $form_id) {
+   if ($form_id == 'views_exposed_form') {
+        $view = $form_state['view'];
+        if ($view->name == 'billing' && $view->current_display == 'page') {
+        $form['changed']['#suffix'] = '<div id="click_for_last_week"><span id="last_week_dates_fill"class="btn btn-success">Click Here For last week</span></div>';
+        }
+    }
+  if($form_id == 'manifest_node_form') {
+    $form['field_avaiable_jobs'][LANGUAGE_NONE]['#type'] = 'value';
+    $node_id = $form['nid']['#value'];
+    $node_load = node_load($node_id);
+
+    $form['#attributes']['id'] = 'manifest-job-form-wrapper';
+
+    if(!drupal_is_front_page()) {
+      $form['field_drivers']['#disabled'] = TRUE;
+      $form['field_type']['#disabled'] = TRUE;
+      $form['field_trailer']['#disabled'] = TRUE;
+      $form['field_dispatch_branch']['#disabled'] = TRUE;
+      $form['field_receiving']['#disabled'] = TRUE;
+      $form['field_dispatch_date']['#disabled'] = FALSE;
+    }
+
+    $query_branch = db_query('select tid,name from {taxonomy_term_data} WHERE vid = 8')->fetchAll();
+
+    $branch = array('' => 'Select Branch');
+    foreach($query_branch as $key =>$value){
+      $branch[$value->tid] = $value->name;
+    }
+    $form['branch_select'] = array(
+      '#type' => 'select',
+      '#options' => $branch,
+      //'#default_value' => isset($form_state['values']['branch_select']) ? $form_state['values']['branch_select']: 30,
+      '#validated' => TRUE,
+      '#ajax' => array('callback' => 'show_available_jobs', 'wrapper' => 'available-job-table')
+    );
+    $form['main_container'] = array(
+      '#type' => 'container',
+      '#prefix' => '<div id="available-job-table">',
+      '#suffix' => '</div>',
+    );
+    $total_allowed_jobs = array();
+    $result ='select n.nid,n.title FROM {node} n LEFT JOIN {field_data_field_current_branch}  fb ON fb.entity_id = n.nid LEFT JOIN {field_data_field_job_status} fs ON fs.entity_id = fb.entity_id WHERE n.type = :name AND fs.field_job_status_target_id = 42 ';
+    $alias[':name'] = 'job';
+
+    if(!empty($form_state['values']['branch_select']) && ($form_state['clicked_button']['#value'] != 'Add' || $form_state['clicked_button']['#value'] == 'Remove')){
+       $tid =  $form_state['values']['branch_select'];
+       $result .= 'AND fb.field_current_branch_target_id = :tid';
+       $alias[':tid'] = $tid;
+    }
+    $query = db_query($result,$alias)->fetchAll();
+    foreach ($query as $key => $value) {
+      $total_allowed_jobs[] = $value->nid;
+    }
+
+    $selected_manifests = array();
+    if(empty($form_state['values'])) {
+      if(!empty($node_load->field_avaiable_jobs[LANGUAGE_NONE])){
+        foreach ($node_load->field_avaiable_jobs[LANGUAGE_NONE] as $key => $value) {
+          $job_node = node_load($value['target_id']);
+          $option1[$value['target_id']] = array('Job ID' => $value['target_id'], 'jobname' => $job_node->title,);
+          $selected_manifests[] = $value['target_id'];
+        }
+      }
+    }
+    else {
+      foreach($form_state['values']['field_avaiable_jobs']['und'] as $key => $value){
+        $selected_manifests[] = $value['target_id'];
+      }
+
+      $first_selected_values = array();
+      foreach($form_state['values']['job_select'] as $key => $value){
+        if($value != 0){
+          $first_selected_values[] = $value;
+        }
+      }
+      $second_selected_values = array();
+      foreach($form_state['values']['job_in_manifest'] as $key => $value){
+        if($value != 0){
+          $second_selected_values[] = $value;
+        }
+      }
+    if($form_state['clicked_button']['#value'] == 'Add'){
+        $form['branch_select']['#value'] = 0;
+        $selected_manifests = array_filter(array_unique(array_values(array_merge($selected_manifests, $first_selected_values))));
+        //dpm($form['branch_select']);
+      }
+      if($form_state['clicked_button']['#value'] == 'Remove'){
+         $form['branch_select']['#value'] = 0;
+         $selected_manifests = array_filter(array_unique(array_values(array_diff($selected_manifests, $second_selected_values))));
+         //dpm($selected_manifests);
+      }
+    }
+
+    $form['field_avaiable_jobs']['und']['#value'] = $selected_manifests;
+
+    $first_column_options = array_filter(array_unique(array_values(array_diff($total_allowed_jobs, $selected_manifests))));
+
+    $option_job_select = array();
+    foreach($first_column_options as $k => $v) {
+      $node_load = node_load($v);
+      $connote = $node_load->field_connote_no['und'][0]['value'];
+      $branch_id = $node_load->field_current_branch['und'][0]['target_id'];
+      $branch_load = taxonomy_term_load($branch_id);
+      $branch = $branch_load->name;
+      if($node_load->field_sender_manual_entry['und'][0]['value'] == 1){
+        $sender_name_id = $node_load->field_sender_third_party['und'][0]['value'];
+        $fc = field_collection_item_load($sender_name_id);
+        $sender_name = $fc->field_sender_manual_name['und'][0]['value'];
+      }
+      else{
+        $sender_name_id = $node_load->field_origin['und'][0]['value'];
+        $fc = field_collection_item_load($sender_name_id);
+        $fc_sender = $fc->field_sender_name['und'][0]['target_id'];
+        $sender_name_load = node_load($fc_sender);
+        $sender_name = $sender_name_load->title;
+      }
+      if($node_load->field_receiver_manual_entry['und'][0]['value'] == 1){
+        $receiver_name_id = $node_load->field_receiver_third_party['und'][0]['value'];
+        $fc1 = field_collection_item_load($receiver_name_id);
+        $receiver_name = $fc1->field_receiver_manual_name['und'][0]['value'];
+      }
+      else{
+        $receiver_name_id = $node_load->field_destination['und'][0]['value'];
+        $fc1 = field_collection_item_load($receiver_name_id);
+        $fc_receiver = $fc1->field_receiver_name['und'][0]['target_id'];
+        $receiver_name_load = node_load($fc_receiver);
+        $receiver_name = $receiver_name_load->title;
+      }
+      $description = $node_load->field_delivery_notes['und'][0]['value'];
+      $option_job_select[$v] = array('Connote ID' => $connote,'Sender Name' => $sender_name,'Receiver Name' => $receiver_name,'Current Branch' => $branch,'Description' => $description,);
+    }
+    //dpm($option_job_select);
+
+    $option_manifest_select = array();
+    foreach($selected_manifests as $k => $v) {
+      $node_load = node_load($v);
+      $connote = $node_load->field_connote_no['und'][0]['value'];
+      $branch_id = $node_load->field_current_branch['und'][0]['target_id'];
+      $branch_load = taxonomy_term_load($branch_id);
+      $branch = $branch_load->name;
+      if($node_load->field_sender_manual_entry['und'][0]['value'] == 1){
+        $sender_name_id = $node_load->field_sender_third_party['und'][0]['value'];
+        $fc = field_collection_item_load($sender_name_id);
+        $sender_name = $fc->field_sender_manual_name['und'][0]['value'];
+      }
+      else{
+        $sender_name_id = $node_load->field_origin['und'][0]['value'];
+        $fc = field_collection_item_load($sender_name_id);
+        $fc_sender = $fc->field_sender_name['und'][0]['target_id'];
+        $sender_name_load = node_load($fc_sender);
+        $sender_name = $sender_name_load->title;
+      }
+      if($node_load->field_receiver_manual_entry['und'][0]['value'] == 1){
+        $receiver_name_id = $node_load->field_receiver_third_party['und'][0]['value'];
+        $fc1 = field_collection_item_load($receiver_name_id);
+        $receiver_name = $fc1->field_receiver_manual_name['und'][0]['value'];
+      }
+      else{
+        $receiver_name_id = $node_load->field_destination['und'][0]['value'];
+        $fc1 = field_collection_item_load($receiver_name_id);
+        $fc_receiver = $fc1->field_receiver_name['und'][0]['target_id'];
+        $receiver_name_load = node_load($fc_receiver);
+        $receiver_name = $receiver_name_load->title;
+      }
+      $description = $node_load->field_delivery_notes['und'][0]['value'];
+      $option_manifest_select[$v] = array('Connote ID' => $connote,'Sender Name' => $sender_name,'Receiver Name' => $receiver_name,'Current Branch' => $branch,'Description' => $description,);
+    }
+    $header = array(
+    'Connote ID' => t('Connote ID'),
+    'Sender Name' => t('Sender Name'),
+    'Receiver Name' => t('Receiver Name'),
+    'Current Branch' => t('Current Branch'),
+    'Description' => t('Description'),
+    );
+
+    $form['main_container']['job_select'] = array(
+      '#type' => 'tableselect',
+      '#header' => $header,
+      '#options' => $option_job_select,
+      '#empty' => t('No jobs Available.'),
+      '#prefix' => '<div class="job-select">',
+      '#suffix' => '</div>',
+    );
+   $form['main_container']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add'),
+      '#executes_submit_callback' => FALSE,
+      '#ajax' => array('callback' => 'add_jobs_in_manifest', 'wrapper' => 'manifest-job-form-wrapper'),
+      '#prefix' => '<div class="job-select-button"><div class="job-select-button-add">',
+      '#suffix' => '</div>',
+    );
+    $form['main_container']['submit1'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove'),
+      '#executes_submit_callback' => FALSE,
+      '#ajax' => array('callback' => 'add_jobs_in_manifest', 'wrapper' => 'manifest-job-form-wrapper'),
+      '#prefix' => '<div class="job-select-button-remove">',
+      '#suffix' => '</div></div>',
+    );
+
+   $form['main_container']['job_in_manifest'] = array(
+    '#type' => 'tableselect',
+    '#header' => $header,
+    '#options' => $option_manifest_select,
+    '#empty' => t('No Jobs in manifest.'),
+    '#prefix' => '<div class="job-in-manifest">',
+    '#suffix' => '</div>',
+
+    );
+  }
+}
+
+function job_copy_cron()
+{
+    $files = array_values(file_scan_directory('public://customfile', '/.*\.(pdf|jpg|xml)$/'));
+    watchdog('job_custom', 'Cron Called', array(), WATCHDOG_ERROR);
+    if(isset($files)){
+      $queue = DrupalQueue::get("document_add");
+      foreach ($files as $key => $value) {
+        $item = array('uri' => $value->uri, 'filename' => $value->filename, 'name' => $value->name);
+        $queue->createItem($item);
+        watchdog('job_custom', 'Item Created', array(), WATCHDOG_ERROR);
+      }
+    }
+}
+
+
+function job_copy_cron_queue_info() {
+  $queues['document_add'] = array(
+    'worker callback' => 'document_queue',
+    'time' => 100,
+  );
+  return $queues;
+}
+
+
+function document_queue($data){
+  //watchdog('my_module', '<pre>%print_r</pre>',array('%print_r' => print_r( $data, TRUE)));
+  $result = db_select('field_data_field_connote_no', 'n')
+                 ->fields('n')
+                 ->condition('field_connote_no_value',$data['name'],'=')
+                 ->execute()
+                 ->fetchAssoc();
+    $node = node_load($result['entity_id']);
+    $filename = $data['name'].$node->changed; //your specific filename
+    $file_size = filesize($data['uri']);
+    global $user;
+    $file_ext = explode('.',$data['filename']);
+    //New file object
+    $file = new stdClass;
+    $file->uid = $user->uid;
+    $file->uri = $data['uri'];
+    //$file->filename = $filename;
+    $file->filemime = file_get_mimetype($data['uri']);
+    $file->status = FILE_STATUS_PERMANENT;
+    $file_obj = file_move($file, 'public://customfile_archive'.$data['name'].'-'.$node->changed.'.'.$file_ext[1], FILE_EXISTS_RENAME);
+    $node->field_attachments['und'][] = array(
+     'fid'  => $file_obj->fid,
+     'uid'  => $file_obj->uid,
+     'filename'  => $file_obj->filename,
+     'uri'  => $file_obj->uri,
+     'filemime'  => $file_obj->filemime,
+     'filesize'  => $file_obj->filesize,
+     'status'  => 1,
+     'display'  => 1,
+     'description'  => '',
+     );
+    node_save($node);
+    drupal_set_message('Succesfully Attatched Files');
+}
+
+function show_available_jobs(&$form, &$form_state){
+    return $form['main_container'];
+}
+function add_jobs_in_manifest(&$form, &$form_state){
+    return $form;
+}

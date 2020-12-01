@@ -1,0 +1,1059 @@
+<?php
+
+function wards_custom_page_build(&$page) {
+  if(arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit') {
+    $nid = arg(1);
+    $node = node_load($nid);
+    if($node->type == 'job') {
+      if($node->status == 0) {
+        drupal_set_title('New Job');
+      }
+      else drupal_set_title('Edit Job');
+    }
+  }
+}
+
+function wards_custom_menu() {
+  $items = array();
+  $items['scan/updates'] = array(
+    'title' => 'Scan Updates',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('scan_update_form'),
+    'access callback' => TRUE,
+  );
+  $items['create-job'] = array(
+    'page callback' => 'create_job',
+    'access callback' => TRUE,
+  );
+  $items['customer/details/ajax_a'] = array(
+     'page callback'=>'customer_details_ajax_a',
+     'type' => MENU_CALLBACK,
+     'access arguments' => array('access content'),
+ );
+ $items['suburb/ajax'] = array(
+    'page callback'=>'suburb_ajax',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+);
+  $items['dashboard'] = array(
+    'title' => 'Dashboard',
+    'page callback'=>'dashboard_content',
+    'access callback' => 'user_access',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+function dashboard_content() {
+  $output = theme('dashboard_content');
+  return $output;
+}
+
+function create_job() {
+  global $user;
+  $node = new stdClass();
+  $node->type = 'job';
+  $node->language = LANGUAGE_NONE;
+  node_object_prepare($node);
+
+  $node->status = 0;
+  $node->promote = 0;
+  $node->sticky = 0;
+  $node->comment = 1;
+  $node->uid = $user->uid;
+
+  node_save($node);
+  drupal_goto('node/'.$node->nid.'/edit');
+}
+
+/**
+ * Implements hook_theme().
+ */
+function wards_custom_theme($existing, $type, $theme, $path) {
+  return array(
+    'job_node_form' => array(
+      'render element' => 'form',
+      'template' => 'job-node-form',
+      'path' => drupal_get_path('module', 'wards_custom').'/templates',
+    ),
+    'manifest_node_form' => array(
+      'render element' => 'form',
+      'template' => 'manifest-node-form',
+      'path' => drupal_get_path('module', 'wards_custom').'/templates',
+    ),
+    'customer_node_form' => array(
+      'render element' => 'form',
+      'template' => 'customer-node-form',
+      'path' => drupal_get_path('module', 'wards_custom').'/templates',
+    ),
+    'display_modal' => array(
+      'template' => 'display-modal',
+      'variables' => array('content' => NULL, 'modal_id' => NULL),
+      'path' => drupal_get_path('module', 'wards_custom').'/templates',
+    ),
+    'display_modal_header' => array(
+      'template' => 'display-modal-header',
+      'variables' => array('id' => NULL, 'title' => NULL),
+      'path' => drupal_get_path('module', 'wards_custom').'/templates',
+    ),
+    'display_modal_footer' => array(
+      'template' => 'display-modal-footer',
+      'path' => drupal_get_path('module', 'wards_custom').'/templates',
+    ),
+    'dashboard_content' => array(
+      'template' => 'dashboard-content',
+      'path' => drupal_get_path('module', 'wards_custom').'/templates',
+    ),
+  );
+}
+
+function wards_custom_form_alter(&$form, &$form_state, $form_id) {
+  if($form_id == 'views_exposed_form' && $form_state['view']->name == "freight_management_job") {
+      $form['created']['max']['#attributes']['placeholder'] = t( "Enter Date" );
+      $form['created']['min']['#attributes']['placeholder'] = t( "Enter Date" );
+      $form['outstand'] = array(
+      '#title' => t('Outstanding'),
+      '#type' => 'checkbox',
+
+     );
+    //  echo"<pre>"; print_r($form['field_job_status_target_id_1']['#options']); die();
+  //   echo"<pre>"; print_r($form['outstand']); die();
+  }
+  if ($form_id == 'customer_node_form') {
+    $form['add_plan_link'] = array('#type' => 'markup', '#markup' => '<span class="add-plan-link">If plan does not exist, <a href="?q=/node/add/pricing" target="_blank">Create a Plan</a></span>');
+    $form['refresh_plan_list'] = array('#type' => 'submit', '#value' => 'Refresh Plan List', '#weight' => -999);
+
+    $form['refresh_plan_list']['#executes_submit_callback'] = FALSE;
+    $form['refresh_plan_list']['#limit_validation_errors'] = array();
+
+    $form['refresh_plan_list']['#ajax'] = array('wrapper' => 'plan-list', 'callback' => 'refresh_plan_list_callback');
+
+    $form['field_pricing_plan']['#prefix'] = '<div id="plan-list">';
+    $form['field_pricing_plan']['#suffix'] = '</div>';
+    $form['field_pricing_plan']['#validated'] = TRUE;
+
+    $form['field_primary_address']['und'][0]['field_postal_code_']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+    $form['field_business_address']['und'][0]['field_postal_code_']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+    $form['field_residential_address']['und'][0]['field_postal_code_']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+    $form['field_other_address']['und'][0]['field_postal_code_']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+
+  }
+  if ($form_id == 'job_node_form') {
+
+    $form['field_delivery_status']['#suffix'] = '<div id="pickup_click"><span id="pickup_click_value"class="btn btn-success">Pickup</span></div><div id="recieved_in_click"><span id="recieved_in_click_value"class="btn btn-success">Recieved In</span></div>';
+  	 $nid = $form['nid']['#value'];
+  	 $job = node_load($nid);
+
+  	 $job_id = $job->field_job_no['und'][0]['value'];
+
+  	 if($job->status == 0) {
+  	   $form['field_job_status']['und']['#attributes']['disabled'] = 'disabled';
+  	   $form['field_current_branch']['und']['#attributes']['disabled'] = 'disabled';
+  	 }
+
+    if($form['field_ready']['und'][0]['#default_value'] == '') {
+  	   $form['field_ready']['und'][0]['#default_value']['value'] = date('n/d/Y');
+  	 }
+
+  	 $form['field_job_no']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+  	 $form['field_connote_no']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+
+    $form['field_customer']['#prefix'] = '<div id="customer-list">';
+    $form['field_customer']['#suffix'] = '</div>';
+    $form['field_customer']['#validated'] = TRUE;
+
+    $form['field_origin']['und'][0]['field_sender_name']['#prefix'] = '<div id="origin-customer-list">';
+    $form['field_origin']['und'][0]['field_sender_name']['#suffix'] = '</div>';
+    $form['field_origin']['und'][0]['field_sender_name']['#validated'] = TRUE;
+
+    $form['field_origin']['und'][0]['field_postal_code_']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+    $form['field_destination']['und'][0]['field_postal_code_']['und'][0]['value']['#attributes']['readonly'] = 'readonly';
+
+    $form['field_destination']['und'][0]['field_receiver_name']['#prefix'] = '<div id="destination-customer-list">';
+    $form['field_destination']['und'][0]['field_receiver_name']['#suffix'] = '</div>';
+    $form['field_destination']['und'][0]['field_receiver_name']['#validated'] = TRUE;
+
+    $form['field_origin']['und'][0]['field_state']['#prefix'] = '<div id="origin-state-list">';
+    $form['field_origin']['und'][0]['field_state']['#suffix'] = '</div>';
+    $form['field_origin']['und'][0]['field_state']['#validated'] = TRUE;
+
+    $form['field_destination']['und'][0]['field_state']['#prefix'] = '<div id="destination-state-list">';
+    $form['field_destination']['und'][0]['field_state']['#suffix'] = '</div>';
+    $form['field_destination']['und'][0]['field_state']['#validated'] = TRUE;
+
+    $form['publish_node'] = array('#type' => 'value', '#value' => 1);
+
+    $form['refresh_customer_list'] = array('#type' => 'submit', '#value' => 'Refresh Customer List');
+    $form['refresh_customer_list']['#executes_submit_callback'] = FALSE;
+    $form['refresh_customer_list']['#limit_validation_errors'] = array();
+    $form['refresh_customer_list']['#ajax'] = array('wrapper' => 'customer-list', 'callback' => 'refresh_customer_list_callback');
+
+    $form['#attributes']['id'] = 'job-node-form-wrapper';
+    $form['field_customer']['und']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback');
+    $form['field_sender_branch']['und']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback');
+    $form['field_receiver_branch']['und']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback');
+
+    $form['field_include_pickup_fee']['und']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback');
+    $form['field_include_delivery_fee']['und']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback');
+
+    $form['field_handling_fee']['und'][0]['value']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback', 'event' => 'blur', 'method' => 'html');
+    $form['field_hand_unload_fee']['und'][0]['value']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback', 'event' => 'blur', 'method' => 'html');
+
+    foreach($form['field_items']['und'] as $key => $value) {
+
+    	if(!is_numeric($key)) continue;
+
+    	if(isset($form['field_items']['und'][$key]['field_dg_details'])) {
+        $form['field_items']['und'][$key]['field_dg_details']['#prefix'] =  theme('display_modal_header', array('id' => 'dg'.$key, 'title' => 'DG Details'));
+		    $form['field_items']['und'][$key]['field_dg_details']['#suffix'] =  theme('display_modal_footer');
+		}
+	 	$fc = array();
+      $field_colleciton_item_id = $form['field_items']['und'][$key]['field_item_details']['und'][0]['#entity']->hostEntity()->item_id;
+      if(isset($field_colleciton_item_id)) {
+	 	  $fc = field_collection_item_load($field_colleciton_item_id);
+	 	}
+	 	if(!empty($fc)) {
+	 	  $form['field_items']['und'][$key]['field_qty']['und'][0]['value']['#type']= 'value';
+		  $form['field_items']['und'][$key]['field_qty']['und'][0]['#suffix'] = $form['field_items']['und'][$key]['field_qty']['und'][0]['value']['#default_value'];
+        $form['field_items']['und'][$key]['field_item_details']['#prefix'] =  theme('display_modal_header', array('id' => 'id'.$key, 'title' => 'Item Details'));
+		  $form['field_items']['und'][$key]['field_item_details']['#suffix'] =  theme('display_modal_footer');
+		}
+		else {
+		  $form['field_items']['und'][$key]['field_item_details']['#prefix'] = '<div style="display:none;">';
+	     $form['field_items']['und'][$key]['field_item_details']['#suffix'] = '</div>';
+		}
+
+    	if(isset($form['field_items']['und'][$key]['field_qty'])) {
+        $form['field_items']['und'][$key]['field_qty']['und'][0]['value']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback', 'event' => 'blur', 'method' => 'html');
+      }
+
+    	if(isset($form['field_items']['und'][$key]['field_weight'])) {
+        $form['field_items']['und'][$key]['field_weight']['und'][0]['value']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback', 'event' => 'blur', 'method' => 'html');
+      }
+
+    	if(isset($form['field_items']['und'][$key]['field_plt_spc'])) {
+        $form['field_items']['und'][$key]['field_plt_spc']['und'][0]['value']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback', 'event' => 'blur', 'method' => 'html');
+      }
+
+      if(isset($form['field_items']['und'][$key]['field_item_type'])) {
+        $form['field_items']['und'][$key]['field_item_type']['und']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback');
+      }
+
+       if(isset($form['field_items']['und'][$key]['field_dg'])) {
+        $form['field_items']['und'][$key]['field_dg']['und']['#ajax'] = array('wrapper' => 'job-node-form-wrapper', 'callback' => 'refresh_price_full_callback');
+      }
+
+      $item_details_count = 0;
+      foreach($form['field_items']['und'][$key]['field_item_details']['und'] as $key_1 => $val_1) {
+      	  if(!is_numeric($key_1)) continue;
+          $form['field_items']['und'][$key]['field_item_details']['und'][$key_1]['field_item_no']['und'][0]['value']['#attributes']['disabled'] = 'disabled';
+        if($form['field_items']['und'][$key]['field_item_details']['und'][$key_1]['field_item_no']['und'][0]['value']['#default_value'] == '') {
+           $n = variable_get('item_no_'.$job_id);
+           $n = $n + 1;
+			 $connote = 'Item-'.$job_id.'-'.$n;
+			 $form['field_items']['und'][$key]['field_item_details']['und'][$key_1]['field_item_no']['und'][0]['value']['#default_value'] = $connote;
+           variable_set('item_no_'.$job_id, $n);
+        }
+        $item_details_count++;
+      }
+      if($form['field_items']['und'][$key]['field_qty']['und'][0]['value']['#default_value'] != '') {
+           $form['field_items']['und'][$key]['field_qty']['und'][0]['value']['#default_value'] = $item_details_count;
+
+      }
+    }
+    if(isset($form_state['triggering_element'])) {
+      calculate_all_price($form, $form_state);
+    }
+  }
+  if($form_id == 'pricing_node_form') {
+  	 $form['update_all_price'] = array('#type' => 'markup', '#markup' => '<div class="update-all-price-wrap">
+	  <span class="update-all-price-value-wrapper">
+	    <input type="text" name="update-all-price-value" size="60" class="update-all-price-value form-text">
+	  </span>
+	  <span class="update-all-price-button">Update All Price</span>
+	</div>');
+
+  	 $form['field_pricing_details']['und']['add_more']['#element_validate'][] = 'pricing_form_validate';
+    $form['#validate'][] = 'pricing_form_validate';
+    foreach ($form['field_pricing_details']['und'] as $key => $value) {
+    	if(!is_numeric($key)) continue;
+
+      if(isset($form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight'])) {
+      	  $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight'][LANGUAGE_NONE]['add_more']['#element_validate'][] = 'individual_pricing_validate_weight';
+        $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight']['#prefix'] =  theme('display_modal_header', array('id' => 'pwm'.$key, 'title' => 'Add Price by Weight'));
+		  $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight']['#suffix'] =  theme('display_modal_footer');
+		}
+		if(isset($form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][0]['field_from_range'])) {
+		  $form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][0]['field_from_range']['und'][0]['value']['#type'] = 'value';
+        $form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][0]['field_from_range']['und'][0]['value']['#value'] = 0;
+        $form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][0]['field_from_range']['und'][0]['value']['#suffix'] =  0;
+
+        foreach($form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'] as $key1 => $value){
+        if(isset($form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight'][LANGUAGE_NONE][$key1]['field_to_range'])) {
+            if($key1 > 0){
+            $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight'][LANGUAGE_NONE][$key1+1]['field_from_range'][LANGUAGE_NONE][0]['value']['#default_value'] = $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight'][LANGUAGE_NONE][$key1]['field_to_range'][LANGUAGE_NONE][0]['value']['#default_value'] + 1;
+            $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight'][LANGUAGE_NONE][$key1+1]['field_from_range'][LANGUAGE_NONE][0]['value']['#type'] = 'value';
+            $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight'][LANGUAGE_NONE][$key1+1]['field_from_range'][LANGUAGE_NONE][0]['value']['#suffix'] = $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_weight'][LANGUAGE_NONE][$key1+1]['field_from_range'][LANGUAGE_NONE][0]['value']['#default_value'];
+            }
+          }
+             $form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][1]['field_from_range']['und'][0]['value']['#type'] = 'value';
+             $form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][1]['field_from_range']['und'][0]['value']['#default_value'] = $form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][0]['field_to_range']['und'][0]['value']['#default_value'] + 1;
+             $form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][1]['field_from_range']['und'][0]['value']['#suffix'] =  $form['field_pricing_details']['und'][$key]['field_price_by_weight']['und'][1]['field_from_range']['und'][0]['value']['#default_value'];
+      }
+		}
+
+		if(isset($form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_pl_spc'])) {
+		  $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_pl_spc'][LANGUAGE_NONE]['add_more']['#element_validate'][] = 'individual_pricing_validate_pl_spc';
+        $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_pl_spc']['#prefix'] =  theme('display_modal_header', array('id' => 'ppm'.$key, 'title' => 'Add Price by Pl Spc'));
+		  $form['field_pricing_details'][LANGUAGE_NONE][$key]['field_price_by_pl_spc']['#suffix'] =  theme('display_modal_footer');
+		}
+
+		if(isset($form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][0]['field_from_range'])) {
+		  $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][0]['field_from_range']['und'][0]['value']['#type'] = 'value';
+        $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][0]['field_from_range']['und'][0]['value']['#value'] = 0;
+        $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][0]['field_from_range']['und'][0]['value']['#suffix'] =  0;
+
+        foreach($form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'] as $key1 => $value){
+        	if(isset($form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][$key1]['field_to_range'])) {
+            if($key1 > 0){
+            $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][$key1+1]['field_from_range']['und'][0]['value']['#default_value'] = $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][$key1]['field_to_range']['und'][0]['value']['#default_value'] + 1;
+            $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][$key1+1]['field_from_range']['und'][0]['value']['#type'] = 'value';
+            $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][$key1+1]['field_from_range']['und'][0]['value']['#suffix'] = $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][$key1+1]['field_from_range']['und'][0]['value']['#default_value'];
+          }
+        }
+          $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][1]['field_from_range']['und'][0]['value']['#type'] = 'value';
+          $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][1]['field_from_range']['und'][0]['value']['#default_value'] = $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][0]['field_to_range']['und'][0]['value']['#default_value'] + 1;
+          $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][1]['field_from_range']['und'][0]['value']['#suffix'] =  $form['field_pricing_details']['und'][$key]['field_price_by_pl_spc']['und'][1]['field_from_range']['und'][0]['value']['#default_value'];
+        }
+      }
+    }
+  }
+  // if($form_id == 'job_node_form'){
+  //   $form['actions']['submit']['#submit'][] = 'csvImporter_upload_enabled_types_submit';
+  // }
+}
+
+// function csvImporter_upload_enabled_types_submit($form, &$form_state){
+
+//   $node = node_load($form['nid']['#value']);
+//   echo "<pre>";
+//   print_r($node->status);
+//   die;
+//     $msg = $form_state['values']['body'][LANGUAGE_NONE][0]['value'];
+//     $tid = $form_state['values']['field_drivers'][LANGUAGE_NONE][0]['tid'];
+//     $term = taxonomy_term_load($tid);
+//     $phone = $term->field_phone_number[LANGUAGE_NONE][0]['value'];
+//   	$message=urlencode($msg);
+//     $parameters="username=&api_password=&sender=&to=".$phone."&message=".$message."&priority=11";
+//   	$url="http://bulksms.karodial.com/pushsms.php";
+//   	$ch = curl_init($url);
+//   	$get_url=$url."?".$parameters;
+//   	curl_setopt($ch, CURLOPT_POST,0);
+//   	curl_setopt($ch, CURLOPT_URL, $get_url);
+//   	curl_setopt($ch, CURLOPT_FOLLOWLOCATION,1);
+//   	curl_setopt($ch, CURLOPT_HEADER,0);
+//   	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+//   	$return_val = curl_exec($ch);
+// }
+
+function individual_pricing_validate_weight($form, &$form_state) {
+  foreach($form_state['values']['field_pricing_details']['und'] as $k => $v) {
+    if(!is_numeric($k)) continue;
+
+    $item_count = 0;
+    foreach($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight']['und'] as $k1 => $v1){
+      if(!is_numeric($k1) || !isset($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight'][LANGUAGE_NONE][$k1]['field_to_range'])) continue;
+      $item_count = $k1;
+    }
+
+    foreach($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight']['und'] as $k1 => $v1){
+      if(!is_numeric($k1)) continue;
+
+      $set_from_id = $form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight']['und'][$k1]['field_from_range']['und'][0]['value'];
+      $set_to_id = isset($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight'][LANGUAGE_NONE][$k1]['field_to_range']['und'][0]['value']) ? $form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight'][LANGUAGE_NONE][$k1]['field_to_range']['und'][0]['value'] : 0;
+
+      if($set_from_id >= $set_to_id && $k1 != $item_count && $set_to_id != 0){
+        form_set_error('field_pricing_details][und]['.$k.'][field_price_by_weight]['.und.'][0][field_from_range', t('aaaTo Range Value should be greater than From Range Value'));
+      }
+    }
+  }
+}
+
+function individual_pricing_validate_pl_spc($form, &$form_state) {
+  foreach($form_state['values']['field_pricing_details']['und'] as $k => $v) {
+    if(!is_numeric($k)) continue;
+
+    $item_count = 0;
+    foreach($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'] as $k1 => $v1){
+      if(!is_numeric($k1) || !isset($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'][$k1]['field_to_range'])) continue;
+      $item_count = $k1;
+    }
+
+    foreach($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'] as $k1 => $v1){
+      if(!is_numeric($k1)) continue;
+
+      $set_from_id = $form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'][$k1]['field_from_range']['und'][0]['value'];
+      $set_to_id = isset($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'][$k1]['field_to_range']['und'][0]['value']) ? $form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'][$k1]['field_to_range']['und'][0]['value'] : 0 ;
+
+      if($set_from_id >= $set_to_id  && $k1 != $item_count && $set_to_id != 0){
+        form_set_error('field_pricing_details]['.und.']['.$k.'][field_price_by_pl_spc]['.und.'][0][field_from_range', t('aaaTo Range Value should be greater than From Range Value'));
+      }
+    }
+  }
+}
+
+function refresh_plan_list_callback(&$form, &$form_state) {
+    return array(
+        '#type' => 'ajax',
+        '#commands' => array(
+            ajax_command_replace("#plan-list", drupal_render($form['field_pricing_plan'])),
+        ),
+    );
+}
+
+function refresh_customer_list_callback(&$form, &$form_state) {
+    return array(
+        '#type' => 'ajax',
+        '#commands' => array(
+            ajax_command_replace("#customer-list", drupal_render($form['field_customer'])),
+            ajax_command_replace("#origin-customer-list", drupal_render($form['field_origin']['und'][0]['field_sender_name'])),
+            ajax_command_replace("#destination-customer-list", drupal_render($form['field_destination']['und'][0]['field_receiver_name'])),
+            ajax_command_replace("#origin-state-list", drupal_render($form['field_origin']['und'][0]['field_state'])),
+            ajax_command_replace("#destination-state-list", drupal_render($form['field_destination']['und'][0]['field_state']))
+        ),
+    );
+}
+
+function customer_create_ajax_callback($form, &$form_state) {
+  if (form_get_errors()) {
+    return $form;
+  }
+  else {
+  	 $form_id = $form['#form_id'];
+    $form = form_get_cache($form_state['input']['form_build_id'], $form_state);
+    $form_state['input'] = array();
+    $form = form_builder($form_id, $form, $form_state);
+
+  	 $commands[] = ajax_command_replace("#customer-node-form", drupal_render($form));
+    $commands[] = array('command' => 'afterAjaxCustomerAdd');
+    return array('#type'=>'ajax', '#commands'=>$commands);
+  }
+  return $form;
+}
+
+function refresh_price_full_callback($form, $form_state) {
+  return $form;
+}
+
+function calculate_all_price(&$form, &$form_state) {
+  $type = NULL;
+  $customer = NULL;
+  $sender = NULL;
+  $receiver = NULL;
+  $entry = NULL;
+  $pl_spc = NULL;
+  $weight = NULL;
+
+  if(isset($form_state['input']['field_customer']['und'])) {
+  	 $customer = $form_state['input']['field_customer']['und'];
+  }
+
+  if(isset($form_state['input']['field_sender_branch']['und'])) {
+  	 $sender = $form_state['input']['field_sender_branch']['und'];
+  }
+
+  if(isset($form_state['input']['field_receiver_branch']['und'])) {
+    $receiver = $form_state['input']['field_receiver_branch']['und'];
+  }
+
+  $line_item_amount = 0;
+  if(is_array($form_state['input']['field_items']['und'])) {
+    foreach($form_state['input']['field_items']['und'] as $key => $value) {
+  	   if(isset($form_state['input']['field_items']['und'][$key]['field_plt_spc']['und'][0]['value'])) {
+  	     $pl_spc = $form_state['input']['field_items']['und'][$key]['field_plt_spc']['und'][0]['value'];
+  	   }
+  	   if(isset($form_state['input']['field_items']['und'][$key]['field_weight']['und'][0]['value'])) {
+  	     $weight = $form_state['input']['field_items']['und'][$key]['field_weight']['und'][0]['value'];
+  	   }
+  	   if(isset($form_state['values']['field_items']['und'][$key]['field_qty']['und'][0]['value'])) {
+  	     $qty = $form_state['values']['field_items']['und'][$key]['field_qty']['und'][0]['value'];
+  	   }
+  	   else if(isset($form_state['input']['field_items']['und'][$key]['field_qty']['und'][0]['value'])) {
+  	     $qty = $form_state['input']['field_items']['und'][$key]['field_qty']['und'][0]['value'];
+  	   }
+  	   else $qty = 1;
+
+  	   if(isset($form_state['input']['field_items']['und'][$key]['field_item_type']['und'])) {
+  	     $item_type = $form_state['input']['field_items']['und'][$key]['field_item_type']['und'];
+  	   }
+
+  	   if(isset($form_state['input']['field_items']['und'][$key]['field_dg']['und'])) {
+  	     $dg = $form_state['input']['field_items']['und'][$key]['field_dg']['und']['0']['value'];
+  	   }
+
+  	   if($pl_spc != NULL) {
+  	 	  $type = 'pl_spc';
+  	 	  $entry = $pl_spc;
+  	   }
+  	   else if($weight != NULL) {
+  	 	  $type = 'weight';
+  	 	  $entry = $weight;
+  	   }
+  	   if($type != NULL && $customer != NULL && $item_type != NULL && $sender != NULL && $receiver != NULL && $entry != NULL) {
+  	 	  $cost = calculate_line_item_pricing($type, $customer, $item_type, $sender, $receiver, $entry);
+        $cost = $qty * $cost;
+
+        if($dg == '1') {
+          $cost = $cost + (25 / 100 * $cost);
+        }
+
+        $line_item_amount = $line_item_amount + $cost;
+        $form['field_items']['und'][$key]['field_cost']['und'][0]['value']['#value'] = $cost;
+      }
+    }
+  }
+
+  $customer_details = node_load($customer);
+  $plan = node_load($customer_details->field_pricing_plan['und'][0]['target_id']);
+
+  $discount = !empty($plan->field_discount['und']) ? $plan->field_discount['und'][0]['value'] : 0;
+  $discount_amount = ($discount / 100) * $line_item_amount;
+  $line_item_amount = $line_item_amount - $discount_amount;
+
+  $fuel_levy = !empty($plan->field_fuel_levy['und']) ? $plan->field_fuel_levy['und'][0]['value'] : 0;
+  $fuel_levy_fee = ($fuel_levy / 100) * $line_item_amount;
+  $line_item_amount = $line_item_amount + $fuel_levy_fee;
+
+  $field_handling_fee = isset($form_state['input']['field_handling_fee']['und'][0]['value']) ? $form_state['input']['field_handling_fee']['und'][0]['value'] : 0;
+  $field_hand_unload_fee = isset($form_state['input']['field_hand_unload_fee']['und'][0]['value']) ? $form_state['input']['field_hand_unload_fee']['und'][0]['value'] : 0;
+
+  $include_pickup = $form_state['input']['field_include_pickup_fee']['und'][0]['value'];
+  $include_delivery = $form_state['input']['field_include_delivery_fee']['und'][0]['value'];
+
+  if($include_pickup) {
+    $pickup_fee = !empty($plan->	field_pickup_fee['und']) ? $plan->field_pickup_fee['und'][0]['value'] : 0;
+    $line_item_amount = $line_item_amount + $pickup_fee;
+  }
+
+  if($include_delivery) {
+    $delivery_fee = !empty($plan->field_pickup_fee['und']) ? $plan->field_pickup_fee['und'][0]['value'] : 0;
+    $line_item_amount = $line_item_amount + $delivery_fee;
+  }
+
+  $con_fee = !empty($plan->field_con_fee['und']) ? $plan->field_con_fee['und'][0]['value'] : 0;
+  $line_item_amount = $line_item_amount + $con_fee;
+
+  $line_item_amount = $line_item_amount + $field_handling_fee + $field_hand_unload_fee;
+
+  $form['field_total_price']['und'][0]['value']['#value'] = $line_item_amount;
+
+}
+
+function calculate_line_item_pricing($type, $customer_id, $item_type, $sender, $receiver, $entry) {
+  $customer = node_load($customer_id);
+  $plan = node_load($customer->field_pricing_plan['und'][0]['target_id']);
+  $items = $plan->field_pricing_details['und'];
+  foreach($items as $item) {
+    $item_detail = field_collection_item_load($item['value']);
+    $Item_type_data = $item_detail->field_item_type['und'][0]['target_id'];
+    $sender_data = $item_detail->field_sender_branch['und'][0]['target_id'];
+    $receiver_data = $item_detail->field_receiver_branch['und'][0]['target_id'];
+
+    if($Item_type_data == $item_type && $sender_data == $sender && $receiver_data = $receiver) {
+      if($type == 'weight') {
+        $pricing_details = $item_detail->field_price_by_weight['und'];
+      }
+      else if($type == 'pl_spc') {
+        $pricing_details = $item_detail->field_price_by_pl_spc['und'];
+      }
+
+      foreach($pricing_details as $pricing_detail) {
+        $pricing_detail_item = field_collection_item_load($pricing_detail['value']);
+        //assigned an arbitary long value as max limit for the last entry
+        $to = !empty($pricing_detail_item->field_to_range) ? $pricing_detail_item->field_to_range['und'][0]['value'] : 1000000000;
+        $from = $pricing_detail_item->field_from_range['und'][0]['value'];
+
+        if($entry > $from -1 && $entry < $to + 1) {
+          return $pricing_detail_item->field_cost['und'][0]['value'];
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+function wards_custom_node_presave($node) {
+  switch ($node->type) {
+    case 'job':
+      if($node->is_new){
+        $value = variable_get('job_no', 0);
+
+        $incremented_no = str_pad($value + 1, 5, 0, STR_PAD_LEFT);
+        $incremented_connote_no = 'WT-'.$incremented_no;
+        $node->field_connote_no[LANGUAGE_NONE][0]['value'] = $incremented_connote_no;
+
+        variable_set('job_no', $incremented_no);
+
+        $incremented_job_no = $value+1;
+        $node->field_job_no[LANGUAGE_NONE][0]['value'] = $incremented_job_no;
+      }
+      else {
+            $node->status = 1;
+      }
+    break;
+  }
+}
+
+function wards_custom_node_update($node) {
+     if(is_object($node) &&  $node->type == 'job' && $node->original->status == 0){
+      $msg = 'this is test message';
+      $tid = $node->field_assigned_driver[LANGUAGE_NONE][0]['target_id'];
+      $term = taxonomy_term_load($tid);
+      $phone = '+61419722578';
+      $message=urlencode($msg);
+      $parameters="username=ashley.ward@wardstransport.com.au&api_password=!W@rds2003&sender=&to=".$phone."&message=".$message."&priority=11";
+      $url="https://app.wholesalesms.com.au/api/v2/send-sms.json";
+      $ch = curl_init($url);
+      $get_url=$url."?".$parameters;
+      curl_setopt($ch, CURLOPT_POST,0);
+      curl_setopt($ch, CURLOPT_URL, $get_url);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION,1);
+         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+         'Authorization: Basic ODViOTdlNDg0OTU4NTU4NzMyOTg1MmVkNTU1OTNkMDE6MTY3MGNmMDJjYjUyODI3NDQ2ZDE3OGZiYTQyM2ZkMWU='
+          ));
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+      $return_val = curl_exec($ch);
+     }
+     if($node->type == 'job' && $node->field_job_status[LANGUAGE_NONE][0]['target_id'] == 55){
+       $org = $node->original;
+       $customer_id = $node->field_customer[LANGUAGE_NONE][0]['target_id'];
+       $customer = node_load($customer_id);
+       $price_id = $customer->field_pricing_plan[LANGUAGE_NONE][0]['target_id'];
+       $price = node_load($price_id);
+       $fee = $price->field_futile_pickup_fee[LANGUAGE_NONE][0]['value'];
+       if($org->field_job_status[LANGUAGE_NONE][0]['target_id'] != 55 && $node->field_job_status[LANGUAGE_NONE][0]['target_id'] == 55){
+         $node->field_total_price[LANGUAGE_NONE][0]['value'] = $node->field_total_price[LANGUAGE_NONE][0]['value'] + $fee;
+         field_attach_update('node', $node);
+         entity_get_controller('node')->resetCache(array($node->nid));
+       }
+     }
+}
+
+function wards_custom_entity_insert($entity, $type) {
+   if($type == 'field_collection_item' && $entity->field_name == 'field_items'){
+   	  $job = $entity->hostEntity();
+   	  $job_id = $job->field_job_no['und'][0]['value'];
+   	  static $hook_running=false;
+      if($hook_running) {
+        return;
+      } else {
+       $hook_runnin=true;
+      }
+      if(!empty($entity->field_qty['und'])) {
+        $quantity = $entity->field_qty['und'][0]['value'];
+        $n = variable_get('item_no_'.$job_id, 0);
+        //not sure, why by default a field collection is created. To avoid that, as a workaround, we are looping one quantity less, and pre incrementing the counter
+        $n = $n + 1;
+        for($i =0; $i < $quantity - 1; $i++) {
+      	    $connote = 'Item-'.$job_id.'-'.$n;
+	       $fc_create = entity_create('field_collection_item', array('field_name' => 'field_item_details'));
+	       $fc_create->setHostEntity('field_collection_item', $entity);
+	       $fc_create->field_item_no['und'][0]['value'] = $connote;
+	       $fc_create->save(true);
+          $entity->field_item['und'][$i] = array('value' => $fc_create->item_id);
+          field_attach_update('field_collection_item', $entity);
+          $n = $n + 1;
+          variable_set('item_no_'.$job_id,$n);
+        }
+     }
+   }
+}
+
+function pricing_form_validate($form, &$form_state){
+  $used_ids = array();
+  $array1= array();
+  $array2 = array();
+
+  foreach($form_state['values']['field_pricing_details']['und'] as $k => $item) {
+    if(!is_numeric($k)) continue;
+
+    $item_type_id = $item['field_item_type']['und'][0]['target_id'];
+    $from_id = $item['field_sender_branch']['und'][0]['target_id'];
+    $to_id = $item['field_receiver_branch']['und'][0]['target_id'];
+
+    $array1= array('item' => $item_type_id, 'to' =>$from_id , 'from' =>$to_id );
+
+    if($from_id == $to_id){
+      form_set_error('field_pricing_details][und]['.$k.'][field_sender_branch', t('Origin and Destination can\'t same.'));
+    }
+    foreach ($used_ids as $item1) {
+      if($array1==$item1) {
+        form_set_error('field_pricing_details][und]['.$k.'][field_item_type', t('Item Type, Origin and Destination combination needs to be unique.'));
+      }
+    }
+
+    $weight_item_count = 0;
+    foreach($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight']['und'] as $k1 => $v1){
+      if(!is_numeric($k1) || !isset($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight']['und'][$k1]['field_to_range'])) continue;
+      $weight_item_count = $k1;
+    }
+
+    if($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_weight']['und'][$weight_item_count]['field_to_range']['und'][0]['value'] != '') {
+      form_set_error('field_pricing_details][und]['.$k.'][field_item_type', t('The To value for the last item of Weight entry has to be blank as it signified unlimited range'));
+    }
+
+    $pl_spc_item_count = 0;
+    foreach($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'] as $k1 => $v1){
+      if(!is_numeric($k1) || !isset($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'][$k1]['field_to_range'])) continue;
+      $pl_spc_item_count = $k1;
+    }
+
+    if($form_state['values']['field_pricing_details']['und'][$k]['field_price_by_pl_spc']['und'][$pl_spc_item_count]['field_to_range']['und'][0]['value'] != '') {
+      form_set_error('field_pricing_details][und]['.$k.'][field_item_type', t('The To value for the last item of PL SPC entry has to be blank as it signified unlimited range'));
+    }
+    array_push($used_ids,$array1);
+  }
+}
+
+function wards_custom_init() {
+  if(arg(0) == 'node' && is_numeric(arg(1)) && arg(2)== '') {
+    $url = arg(0);
+    $url1 = arg(1);
+    $url_final = url($_GET['q']);
+    drupal_goto('node/'.$url1.'/edit', array('query' => array('locked' => 'true')));
+  }
+  if(arg(0) == 'node' && is_numeric(arg(1)) && arg(2)== 'edit' && isset($_GET['locked']) && $_GET['locked'] == 'true'){
+    drupal_add_js('jQuery(document).ready(function(){
+                   jQuery("#job-node-form-wrapper :input").prop("disabled", true);
+                   jQuery("#job-node-form-wrapper :button").prop("disabled", false);
+                   jQuery("#job-node-form-wrapper #field-make-sender-add-more-wrapper :input").prop("disabled", true);
+                   jQuery("#customer-node-form :input").prop("disabled", true);
+                   jQuery("#manifest-job-form-wrapper :input").prop("disabled", true);
+                   jQuery("#pricing-node-form :input").prop("disabled", true);
+                   jQuery("#pricing-node-form :button").prop("disabled", false);
+                   });', 'inline');
+  }
+}
+
+function suburb_ajax(){
+  $suburb_id=$_POST["suburb_id"];
+  $suburb = taxonomy_term_load($suburb_id);
+  $postel_code = $suburb->field_postal_code_[LANGUAGE_NONE][0]['value'];
+  $result = array('suburb_id' =>$suburb_id,'postel_code'=>$postel_code);
+  drupal_json_output( $result);
+  exit();
+}
+
+function customer_details_ajax_a(){
+    $customer_id=$_POST["customer_id"];
+
+    $customer = node_load($customer_id);
+    $primary_contact= $customer->field_primary_contact[LANGUAGE_NONE][0]['value'];
+    $primary_address= $customer->field_primary_address[LANGUAGE_NONE][0]['value'];
+
+    $primary_address_fields = field_collection_item_load($primary_address);
+    $address1=$primary_address_fields->field_address_line_1[LANGUAGE_NONE][0]['value'];
+    $address2=$primary_address_fields->field_address_line_2[LANGUAGE_NONE][0]['value'];
+    $suburb_id =$primary_address_fields->field_suburb_[LANGUAGE_NONE][0]['target_id'];
+    $suburb = taxonomy_term_load($suburb_id);
+    $postel_code = $suburb->field_postal_code_[LANGUAGE_NONE][0]['value'];
+    $state=$primary_address_fields->field_state[LANGUAGE_NONE][0]['tid'];
+    $closing=$primary_address_fields->field_closing[LANGUAGE_NONE][0]['value'];
+    if($closing != ''){
+    $time = date('h:i a', $closing);
+    }
+    $primary_contact_fields = field_collection_item_load($primary_contact);
+    $contact_name=$primary_contact_fields->field_contact_name [LANGUAGE_NONE][0]['value'];
+    $mobile=$primary_contact_fields->field_mobile[LANGUAGE_NONE][0]['value'];
+
+    $result = array('customer_id' =>$customer_id,'address1'=>$address1,'address2'=>$address2,'suburb'=>$suburb_id,'postel_code'=>$postel_code,'state'=>$state,'time'=>$time,'contact_name'=>$contact_name,'mobile'=> $mobile);
+    drupal_json_output( $result);
+    exit();
+}
+
+
+function scan_update_form($form,&$form_state) {
+  $form['#id'] = 'scan-update-form';
+  $scan_in_progress = 0;
+  if(!empty($form_state['values'])) {
+    if($form_state['triggering_element']['#parents'][0] == 'start_scan_button') {
+      $scan_in_progress = 1;
+    }
+    else if ($form_state['triggering_element']['#parents'][0] == 'cancel_scan_button') {
+      $scan_in_progress = 0;
+    }
+    else {
+      $scan_in_progress = $form_state['input']['scan_in_progress'];
+    }
+  }
+  $form['scan_in_progress'] = array('#type' => 'hidden', '#value' => $scan_in_progress);
+  $status =array('_none'=>'- None -');
+  $status_load = taxonomy_get_tree(12);
+  foreach ($status_load as  $status_name) {
+    $status[$status_name->tid]=$status_name->name;
+  }
+
+  $receiver_branch =array('_none'=>'- None -');
+  $branch_load = taxonomy_get_tree(8);
+  foreach ($branch_load as  $branch_name) {
+    $receiver_branch[$branch_name->tid] = $branch_name->name;
+  }
+
+ $form['dashboard'] = array(
+   '#type' => 'markup',
+   '#markup' => '<div><h1><a href="/dashboard" class="dashboard-btn">Dashboard</a></h1></div>
+                 <div id="scan-box-close">Close</div>',
+ );
+ if($scan_in_progress) {
+   $form['scan_options_wrapper'] = array(
+     '#type' => 'container',
+     '#prefix' => '<div id="scan-options-wrapper" style="display: none">',
+     '#suffix' => '</div>',
+   );
+ }
+ else {
+   $form['scan_options_wrapper'] = array(
+     '#type' => 'container',
+     '#prefix' => '<div id="scan-options-wrapper">',
+     '#suffix' => '</div>',
+   );
+ }
+ $form['scan_options_wrapper']['status'] = array(
+   '#title' => t('Status Update'),
+   '#type' => 'select',
+   '#required' => TRUE,
+   '#options'=>$status,
+ );
+ $form['scan_options_wrapper']['receiver_branch'] = array(
+   '#title' => t('Receiver Branch'),
+   '#type' => 'select',
+   '#required' => TRUE,
+   '#options'=>$receiver_branch,
+ );
+
+ $form['scan_options_wrapper']['start_scan_button'] = array(
+   '#type' => 'submit',
+   '#value' => t('Scan'),
+   '#executes_submit_callback' => FALSE,
+   '#ajax' => array(
+     'callback' => 'scan_update_ajax_submit',
+     'wrapper' => 'scan-update-form',
+   ),
+ );
+ if($scan_in_progress) {
+   $form['scan_wrapper'] = array(
+     '#type' => 'container',
+     '#prefix' => '<div id="scan-wrapper">',
+     '#suffix' => '</div>',
+   );
+ }
+ else {
+   $form['scan_wrapper'] = array(
+     '#type' => 'container',
+     '#prefix' => '<div id="scan-wrapper" style="display: none">',
+     '#suffix' => '</div>',
+   );
+ }
+  $form['scan_wrapper']['connot'] = array(
+    '#title' => t('Connote No'),
+    '#type' => 'textfield',
+    '#prefix' => '<div id="connot-id">',
+    '#suffix' => '</div>',
+    '#ajax' => array(
+    'callback' => 'scan_update_ajax_submit',
+    'wrapper' => 'scan-update-form',
+    ),
+  );
+ $form['scan_wrapper']['cancel_scan_button'] = array(
+   '#type' => 'submit',
+   '#value' => t('Cancel Scan'),
+   '#executes_submit_callback' => FALSE,
+   '#limit_validation_errors' => array(),
+   '#ajax' => array(
+     'callback' => 'scan_update_ajax_submit',
+     'wrapper' => 'scan-update-form',
+   ),
+ );
+  $form['scan_wrapper']['nids']= array(
+    '#type' => 'hidden',
+    '#value' => '',
+  );
+  if (isset($form_state['values'])) {
+    if(!empty($form_state['values']['connot'])) {
+      $present_connote = $form_state['values']['connot'];
+      $result = db_select('field_data_field_connote_no', 'n')
+        ->fields('n')
+        ->condition('field_connote_no_value', $form_state['values']['connot'],'=')
+        ->execute()
+        ->fetchAssoc();
+      $node = node_load($result['entity_id']);
+      if(is_object($node) && !empty($node)) {
+        $existing_jobs = $form_state['values']['nids'];
+        if($form_state['values']['nids'] == '') {
+          $jobs_array = array();
+        }
+        else if(strpos($existing_jobs, ',') == false) {
+          $jobs_array[] = $existing_jobs;
+        }
+        else {
+          $jobs_array = explode(',', $existing_jobs);
+        }
+        $jobs_array[] = $node->nid;
+        $jobs_array = array_unique($jobs_array);
+        $new_jobs = implode(',', $jobs_array);
+        $form['scan_wrapper']['nids']['#value'] = trim($new_jobs, ',');
+      }
+      else {
+        /*$manifest_result = db_select('field_data_field_manifest_no', 'n')
+          ->fields('n')
+          ->condition('field_manifest_no_value', $form_state['values']['connot'],'=')
+          ->execute()
+          ->fetchAssoc();*/
+        $node = node_load($form_state['values']['connot']);
+        if(is_object($node) && $node->type == 'manifest') {
+          $existing_jobs = $form_state['values']['nids'];
+          $jobs_array = explode(',', $existing_jobs);
+          foreach( $node->field_avaiable_jobs['und'] as $key => $value){
+           $jobs_array[] = $node->field_avaiable_jobs['und'][$key]['target_id'];
+          }
+          $jobs_array = array_unique($jobs_array);
+          $new_jobs = implode(',', $jobs_array);
+          $form['scan_wrapper']['nids']['#value'] = trim($new_jobs, ',');
+          }
+        else {
+          $new_jobs = $form_state['input']['nids'];
+          $form['scan_wrapper']['nids']['#value'] = trim($new_jobs, ',');
+        }
+      }
+    }
+    else {
+      $new_jobs = $form_state['input']['nids'];
+      $form['scan_wrapper']['nids']['#value'] = trim($new_jobs, ',');
+    }
+
+    $list = array();
+    $list1 = array();
+    $final_jobs = trim($new_jobs, ',') != '' ? explode(',', trim($new_jobs, ',')) : array();
+
+    foreach($final_jobs as  $key => $value){
+     $job_load = node_load($value);
+       $form['scan_wrapper']['data_wrapper1'.$value] = array(
+         '#type' => 'container',
+         '#prefix' => '<div id="data-wrapper-table-'.$value.'" class="data-wrapper-table">',
+         '#suffix' => '</div>',
+       );
+       $form['scan_wrapper']['data_wrapper1'.$value]['check_all_'.$value] = array(
+         '#type' => 'checkbox',
+         '#default_value' => 1,
+         '#prefix' => '<div class="check-all-job"><div class="check-all-job-icon"> <i class="glyphicon glyphicon-chevron-down"></i></div>',
+         '#suffix' => '<span class="">'.$job_load->field_connote_no[LANGUAGE_NONE][0]['value'].' '.$job_load->title.'</span></div>',
+       );
+       $form['scan_wrapper']['data_wrapper1'.$value]['item_all_'.$value] = array(
+         '#prefix' => '<div id="data-wrapper-all-items-'.$node->nid.'" class="data-wrapper-all-items">',
+         '#suffix' => '</div>',
+        );
+      foreach($job_load->field_items['und'] as $key => $value) {
+        $fc = field_collection_item_load($value);
+        $list[$fc->item_id] = array('Item ID' => $fc->item_id,'itemname' => $fc->field_reference['und'][0]['value']);
+          foreach($fc->field_item_details['und'] as $key => $value) {
+            $fc1 = field_collection_item_load($value);
+            $list1[$fc->item_id][$fc1->item_id] = array('Item ID' => $fc1->item_id,'itemname' =>$fc1->field_item_no['und'][0]['value']);
+          }
+      }
+    }
+    $header = array(
+     'Item ID' => t('Item id'),
+     'itemname' => t('Item name'),
+    );
+   foreach($list as $key => $value){
+     $collect = entity_load_single('field_collection_item', $key);
+     $fc_load = $collect->hostEntity();
+     $form['scan_wrapper']['data_wrapper1'.$fc_load->nid]['item_all_'.$fc_load->nid]['data_wrapper2'.$key] = array(
+      '#prefix' => '<div id="data-wrapper-item-'.$key.'" class="data-wrapper-item"><div class="check-all-item-icon"> <i class="glyphicon glyphicon-chevron-down"></i></div>',
+       '#suffix' => '</div>',
+    );
+  }
+
+    foreach($list1 as $key => $value){
+      $model = entity_load_single('field_collection_item', $key);
+      $node = $model->hostEntity();
+      $form['scan_wrapper']['data_wrapper1'.$node->nid]['item_all_'.$node->nid]['data_wrapper2'.$model->item_id]['job_select_check'.$key] = array(
+      '#title' => $model->item_id,
+      '#type' => 'checkbox',
+       '#default_value' => 1,
+       '#prefix' => '<div id="data-wrapper-checkbox-'.$key.'" class="data-wrapper-checkbox">',
+        '#suffix' => '</div>',
+     );
+     $form['scan_wrapper']['data_wrapper1'.$node->nid]['item_all_'.$node->nid]['data_wrapper2'.$model->item_id]['job_select'.$key] = array(
+       '#type' => 'tableselect',
+       '#header' => $header,
+       '#options' => $list1[$key],
+       '#empty' => t('No jobs Available.'),
+       '#prefix' => '<div id="data-wrapper-table-'.$key.'" class="data-wrapper-table">',
+        '#suffix' => '</div>',
+        '#default_value' =>$list1[$key],
+     );
+    }
+    $form['scan_wrapper']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Update'),
+    );
+  }
+  return $form;
+}
+
+function scan_update_ajax_submit(&$form, &$form_state) {
+  return $form;
+}
+
+function scan_update_form_submit($form,&$form_state) {
+  $nids = array_filter(explode(',', $form_state['values']['nids']));
+  $number_of_nodes = count($nids);
+  $operations = array();
+  for ($i = 0; $i <= $number_of_nodes-1; $i++) {
+    $operations[] = array('status_submit',array($i));
+  }
+  /*
+  $batch = array(
+    'title' => t('Status Finally.'),
+    'operations' => $operations,
+    'finished' => 'scan_update_form_finished',
+    'init_message' => t('Update Is Starting.'),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Updation has encountered an error.'),
+  );
+  */
+  foreach($nids as $value){
+   $node = node_load($value);
+    foreach($node->field_items['und'] as $key => $value) {
+      $final_val = 'job_select'.$value['value'];
+      if(isset($form_state['values'][$final_val])){
+        foreach($form_state['values'][$final_val] as $key => $value){
+          if($value != 0){
+            $fc1 = field_collection_item_load($value);
+            $wrapper = entity_metadata_wrapper('field_collection_item', $fc1);
+          //  echo"<pre>"; print_r($wrapper->field_job_status); die();
+            $wrapper->field_job_status->set($form_state['values']['status']);
+            $wrapper->save();
+          }
+        }
+      }
+    }
+    $node->field_job_status['und'][0]['target_id'] = $form_state['values']['status'];
+    $node->	field_current_branch['und'][0]['target_id'] = $form_state['values']['receiver_branch'];
+    node_save($node);
+  }
+  //batch_set($batch);
+}
+
+function scan_update_form_finished() {
+  drupal_set_message('Update Successfully.');
+  drupal_goto('scan/updates');
+}
+
+function wards_custom_node_submit($node, $form, &$form_state) {
+  if($node->type == "pricing" || $node->type == "manifest" || $node->type == "customer" || $node->type == "job"){
+    node_save($node);
+    drupal_goto('node/'.$node->nid.'/edit');
+  }
+}

@@ -1,0 +1,4 @@
+name = Print module
+description = Printing Option for job manifest.
+core = 7.x
+package = Wards Custom

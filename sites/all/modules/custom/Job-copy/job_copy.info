@@ -1,0 +1,4 @@
+name = Job copy module
+description = Copy job and create new job.
+core = 7.x
+package = Wards Custom

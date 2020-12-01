@@ -1,0 +1,436 @@
+<?php
+
+/**
+ * @file
+ * Modules weight functionality implementation.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function modules_weight_help($path, $arg) {
+  switch ($path) {
+    // Main module help.
+    case 'admin/help#modules_weight':
+      // Loading the drush command file.
+      module_load_include('inc', 'modules_weight', 'modules_weight.drush');
+
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Sometimes we need to modify modules execution order, and some people could write a code that execute the query to modify the weight of a module in the system table, some one might go straight to his favorite SQL client and modify the record directly. This module provides an interface to reorder the weight modules.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Configuring the module') . '</dt>';
+      $output .= '<dd>' . t('You can manage the module settings from the <a href="@config-page">Modules Weight Settings</a> page. For this you need the <em>Administer Modules Weight</em> permission.', array('@config-page' => url('admin/config/system/modules-weight/configuration'))) . '</dd>';
+      $output .= '<dt>' . t('Changing the modules weight') . '</dt>';
+      $output .= '<dd>' . t('You can select the weight for all the installed and compatible modules according to the module settings from the <a href="@config-page">Modules Weight</a> page. For this you need the <em>Administer Modules Weight</em> permission.', array('@config-page' => url('admin/config/system/modules-weight'))) . '</dd>';
+      $output .= '</dl>';
+      $output .= '<h3>' . t('Drush commands') . '</h3>';
+      // Adding the drush command help information.
+      $output .= _modules_weight_drush_get_drush_command_help();
+
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function modules_weight_permission() {
+  return array(
+    'administer modules weight' => array(
+      'title' => t('Administer Modules Weight'),
+      'description' => t('Allow access to configure the module settings.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function modules_weight_menu() {
+  $items = array();
+  $items['admin/config/system/modules-weight'] = array(
+    'title' => 'Modules Weight',
+    'description' => 'Provide an interface to changer the modules weight.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('modules_weight_admin_config_page_form'),
+    'access arguments' => array('administer modules weight'),
+    'file' => 'modules_weight.admin.inc',
+  );
+  $items['admin/config/system/modules-weight/default'] = array(
+    'title' => 'Modules Weight',
+    'description' => 'Provide an interface to changer the modules weight.',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 2,
+  );
+  $items['admin/config/system/modules-weight/configuration'] = array(
+    'title' => 'Settings',
+    'description' => 'Modules Weight Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('modules_weight_configuration_form'),
+    'access arguments' => array('administer modules weight'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+    'file' => 'modules_weight.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function modules_weight_theme() {
+  return array(
+    'modules_weight_admin_config_page_form' => array(
+      'render element' => 'form',
+    ),
+  );
+}
+
+/**
+ * Theme function callback.
+ */
+function theme_modules_weight_admin_config_page_form($variables) {
+  $form = $variables['form'];
+
+  $rows = array();
+
+  foreach (element_children($form['modules']) as $id) {
+
+    $form['modules_weight'][$id]['weight']['#attributes']['class'] = array('module-weight');
+
+    $rows[] = array(
+      'data' => array(
+        drupal_render($form['modules'][$id]['name']),
+        drupal_render($form['modules'][$id]['description']),
+        drupal_render($form['modules'][$id]['weight']),
+        drupal_render($form['modules'][$id]['package']),
+      ),
+      'class' => array('draggable'),
+    );
+  }
+
+  $header = array(
+    t('Name'),
+    t('Description'),
+    t('Weight'),
+    t('Package'),
+  );
+
+  $table_id = 'module-items-table';
+
+  $output = theme('table', array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array('id' => $table_id),
+  ));
+
+  $output .= drupal_render_children($form);
+  // Remove table drag functionality due to issue related to re-weight all
+  // module for more info : https://www.drupal.org/node/2205787
+  // drupal_add_tabledrag($table_id, 'order', 'self', 'module-weight');.
+  return $output;
+}
+
+/**
+ * Prepares the delta for the weight field on the administration form.
+ *
+ * If a module has a weight higher then 100 (or lower than 100), it will use
+ * that value as delta and the '#weight' field will turn into a textfield most
+ * likely.
+ *
+ * @param int $weight
+ *   The weight.
+ *
+ * @return int
+ *   The weight.
+ */
+function _modules_weight_prepare_delta($weight) {
+  $delta = 100;
+  if ((int) $weight > $delta) {
+    return (int) $weight;
+  }
+  if ((int) $weight < -100) {
+    return (int) $weight * -1;
+  }
+
+  return $delta;
+}
+
+/**
+ * Array sorting callback; sorts modules by their weight.
+ */
+function _modules_weight_sort_modules_by_weight($a, $b) {
+  if ($a->weight == $b->weight) {
+    return 0;
+  }
+  return ($a->weight < $b->weight) ? -1 : 1;
+}
+
+/**
+ * Return the modules list.
+ *
+ * @param bool $force
+ *   Force to show the core modules.
+ *
+ * @return array
+ *   The modules list.
+ */
+function _modules_weight_modules_list($force = FALSE) {
+  // Get current list of modules.
+  $modules = system_rebuild_module_data();
+
+  if ($force) {
+    $show_system_modules = TRUE;
+  }
+  else {
+    // Getting the config to know of we should show or not the core modules.
+    $show_system_modules = variable_get('show_system_modules', FALSE);
+  }
+
+  // Iterate through each of the modules.
+  foreach ($modules as $filename => $module) {
+    if (empty($module->info['hidden']) && $module->status && ($show_system_modules || $module->info['package'] != 'Core')) {
+
+      $compatible = TRUE;
+
+      // Check the core compatibility.
+      if ($module->info['core'] != DRUPAL_CORE_COMPATIBILITY) {
+        $compatible = FALSE;
+      }
+
+      // This module is compatible with the currently installed PHP version?
+      if (version_compare(phpversion(), $module->info['php']) < 0) {
+        $compatible = FALSE;
+      }
+
+      // If this module is not compatible it will not be show.
+      if (!$compatible) {
+        unset($modules[$filename]);
+      }
+    }
+    else {
+      unset($modules[$filename]);
+    }
+  }
+
+  // Sorting all modules by their weight.
+  uasort($modules, '_modules_weight_sort_modules_by_weight');
+
+  return $modules;
+}
+
+/**
+ * Sets weight of a particular module.
+ *
+ * @param string $module
+ *   The name of the module (without the .module extension).
+ * @param int $weight
+ *   An integer representing the weight of the module.
+ */
+function _modules_weight_module_set_weight($module, $weight) {
+  // The query.
+  $query = "UPDATE {system}
+            SET weight = :weight
+            WHERE type = 'module' AND name = :name";
+  // Executing the query.
+  db_query($query, array(':weight' => $weight, ':name' => $module));
+}
+
+/**
+ * Gets weight of a particular module.
+ *
+ * @param string $module
+ *   The name of the module (without the .module extension).
+ *
+ * @return int
+ *   An integer representing the weight of the module.
+ */
+function _modules_weight_module_get_weight($module) {
+  // The query.
+  $query = "SELECT weight
+            FROM {system}
+            WHERE name = :name";
+  // Executing the query and getting the module weight.
+  $weight = db_query($query, array(':name' => $module))->fetchObject()->weight;
+
+  return $weight;
+}
+
+/**
+ * Return the drush command help html.
+ *
+ * @return string
+ *   The drush command help html.
+ */
+function _modules_weight_drush_get_drush_command_help() {
+  $drush_commands = modules_weight_drush_command();
+
+  foreach ($drush_commands as $command => $definition) {
+    // The details drush command element container.
+    $section[$command] = array(
+      '#type' => 'fieldset',
+      '#title' => $command,
+      '#description' => $definition['description'],
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#attached' => array(
+        'library' => array(
+          array('system', 'drupal.collapse'),
+        ),
+      ),
+      '#attributes' => array(
+        'class' => array('collapsible', 'collapsed'),
+      ),
+    );
+
+    // Examples.
+    if (isset($definition['examples'])) {
+      $rows = array();
+      // Iterating over each example.
+      foreach ($definition['examples'] as $example_command => $section_definition) {
+        $rows[] = array($example_command, $section_definition);
+      }
+      // Examples render array.
+      $section[$command]['examples'] = array(
+        '#theme' => 'table',
+        '#caption' => t('Examples'),
+        '#header' => array(t('Command'), t('Description')),
+        '#rows' => $rows,
+      );
+    }
+
+    // Arguments.
+    if (isset($definition['arguments'])) {
+      $rows = array();
+      // Iterating over each argument.
+      foreach ($definition['arguments'] as $example_command => $section_definition) {
+        // Sometimes we can have links in the drush descriptions, so we need to
+        // extract it and convert it in links (in the Drupal way) to be
+        // displayed in the Drupal interface.
+        // Searching if the description have links inside.
+        $urls = _modules_weight_find_url_in_string($section_definition);
+        // Iterating over each link.
+        foreach ($urls as $url) {
+          $section_definition = _modules_weight_convert_plain_url_in_link($url, $section_definition);
+        }
+
+        $rows[] = array($example_command, $section_definition);
+      }
+      // Arguments render array.
+      $section[$command]['arguments'] = array(
+        '#theme' => 'table',
+        '#caption' => t('Arguments'),
+        '#header' => array(t('Name'), t('Description')),
+        '#rows' => $rows,
+      );
+    }
+
+    // Options.
+    if (isset($definition['options'])) {
+      $rows = array();
+      // Iterating over each option.
+      foreach ($definition['options'] as $example_command => $section_definition) {
+        $example_command = '--' . $example_command;
+        // Verifying that we have example-value.
+        if (isset($section_definition['example-value'])) {
+          // Checking for the value.
+          switch ($section_definition['value']) {
+            case 'optional':
+              $example_command .= '=[' . $section_definition['example-value'] . ']';
+              break;
+
+            // By default is required.
+            default:
+              $example_command .= '=<' . $section_definition['example-value'] . '>';
+          }
+        }
+
+        // Sometimes we can have links in the drush descriptions, so we need to
+        // extract it and convert it in links (in the Drupal way) to be
+        // displayed in the Drupal interface.
+        // Searching if the description have links inside.
+        $urls = _modules_weight_find_url_in_string($section_definition['description']);
+        // Iterating over each link.
+        foreach ($urls as $url) {
+          $section_definition['description'] = _modules_weight_convert_plain_url_in_link($url, $section_definition['description']);
+        }
+
+        $rows[] = array($example_command, $section_definition['description']);
+      }
+      // Options render array.
+      $section[$command]['options'] = array(
+        '#theme' => 'table',
+        '#caption' => t('Options'),
+        '#header' => array(t('Name'), t('Description')),
+        '#rows' => $rows,
+      );
+    }
+
+    // Alias.
+    if (isset($definition['aliases'])) {
+      $rows = array();
+      // Iterating over all the aliases.
+      foreach ($definition['aliases'] as $alias) {
+        $rows[] = $alias;
+      }
+      // Aliases render array.
+      $section[$command][] = array(
+        '#markup' => '<div id="aliases">' . t('Aliases') . '</div>',
+      );
+      // List of aliases.
+      $section[$command]['aliases'] = array(
+        '#markup' => '<div class="item-list--comma-list item-list">' . implode(', ', $rows) . '</div>',
+      );
+    }
+  }
+  // Attaching css styles.
+  $section[$command]['aliases']['#attached']['css'][] = drupal_get_path('module', 'modules_weight') . '/css/modules_weight_help_page.css';
+  // Rendering all the elements.
+  $drush_command_html = drupal_render($section);
+
+  return $drush_command_html;
+}
+
+/**
+ * Find a url in a string.
+ *
+ * @param string $string
+ *   The string to review.
+ *
+ * @return array
+ *   Array of url.
+ */
+function _modules_weight_find_url_in_string($string) {
+  $matches = array();
+  // Regular expresion to find url.
+  $url = '#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#';
+  // Matching the patter against the string.
+  preg_match_all($url, $string, $matches);
+
+  return ($matches[0]);
+}
+
+/**
+ * Convert plain url to links in a given string.
+ *
+ * @param string $url
+ *   The url to convert in a link.
+ * @param string $string
+ *   The string to review.
+ *
+ * @return string
+ *   The new string.
+ */
+function _modules_weight_convert_plain_url_in_link($url, $string) {
+  // As the links not works in the command line (drush) we need to
+  // convert the urls in links for the drupal interface.
+  // Creating the link.
+  $external_link = l($url, $url);
+  // Doing the sustitution from the plain url to the link.
+  $string = str_replace($url, $external_link, $string);
+
+  return $string;
+}

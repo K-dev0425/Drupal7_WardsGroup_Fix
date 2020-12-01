@@ -1,0 +1,4 @@
+name = Wards Custom
+description = A library of custom functions for Wards Freight Managemen Project.
+core = 7.x
+package = Wards Custom
