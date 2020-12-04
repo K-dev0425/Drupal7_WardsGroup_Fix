@@ -4,8 +4,10 @@
     <list default="true" id="5dda070c-0f87-461b-87b3-6404c4551208" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/customer-node-form.tpl.php" beforeDir="false" afterPath="$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/customer-node-form.tpl.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sites/all/themes/adminimal_theme/template.php" beforeDir="false" afterPath="$PROJECT_DIR$/sites/all/themes/adminimal_theme/template.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/css/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/js/custom.js" beforeDir="false" afterPath="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/js/custom.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/template.php" beforeDir="false" afterPath="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/template.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sites/default/settings.php" beforeDir="false" afterPath="$PROJECT_DIR$/sites/default/settings.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -31,6 +33,7 @@
     <session id="81247522">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.opened" value="1" />
         </counts>
@@ -38,16 +41,17 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CSS" value="1" />
-          <entry key="JavaScript" value="1" />
-          <entry key="PHP" value="26" />
-          <entry key="PLAIN_TEXT" value="4" />
+          <entry key="HTML" value="1" />
+          <entry key="JavaScript" value="5" />
+          <entry key="PHP" value="72" />
+          <entry key="PLAIN_TEXT" value="16" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="CSS" value="150" />
+          <entry key="CSS" value="180" />
           <entry key="JavaScript" value="68" />
-          <entry key="PHP" value="3" />
+          <entry key="PHP" value="304" />
           <entry key="PLAIN_TEXT" value="9" />
         </counts>
       </usages-collector>
@@ -56,77 +60,58 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/css/style.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="256">
-              <caret line="6740" column="21" selection-start-line="6740" selection-start-column="1" selection-end-line="6740" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sites/all/modules/views/theme/views-exposed-form.tpl.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="416">
-              <caret line="39" column="45" lean-forward="true" selection-start-line="39" selection-start-column="45" selection-end-line="39" selection-end-column="45" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/js/custom.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="74">
-              <caret line="1261" lean-forward="true" selection-start-line="1261" selection-end-line="1261" />
-              <folding>
-                <element signature="e#15#21#0" expanded="true" />
-                <element signature="e#67#73#0" expanded="true" />
-                <element signature="e#80#86#0" expanded="true" />
-                <element signature="n#style#0;n#span#0;n#center#0;n#!!top" expanded="true" />
-                <element signature="e#15#21#0" expanded="true" />
-                <element signature="e#72#78#0" expanded="true" />
-                <element signature="e#86#92#0" expanded="true" />
-                <element signature="n#style#0;n#span#0;n#center#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/customer-node-form.tpl.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-146">
-              <caret line="32" column="59" lean-forward="true" selection-start-line="32" selection-start-column="59" selection-end-line="32" selection-end-column="59" />
-              <folding>
-                <element signature="e#4326#5877#0#HTML" />
-                <element signature="e#5911#7467#0#HTML" />
-                <element signature="e#7505#9073#0#HTML" />
-                <element signature="e#9109#10653#0#HTML" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/wards_custom.module">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1508">
-              <caret line="422" selection-start-line="422" selection-end-line="422" />
+            <state relative-caret-position="379">
+              <caret line="62" column="30" lean-forward="true" selection-start-line="62" selection-start-column="30" selection-end-line="62" selection-end-column="30" />
               <folding>
+                <element signature="n#bar128#0;n#!!top" />
                 <element signature="n#style#0;n#div#0;n#td#0;n#!!top" expanded="true" />
+                <element signature="n#create_job#0;n#!!top" />
+                <element signature="e#5254#5289#0#PHP" />
+                <element signature="n#wards_custom_form_alter#0;n#!!top" />
+                <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+                <element signature="e#33572#33619#0#PHP" />
+                <element signature="e#35439#35613#0#PHP" />
+                <element signature="n#individual_pricing_validate_weight#0;n#!!top" />
+                <element signature="n#individual_pricing_validate_pl_spc#0;n#!!top" />
+                <element signature="e#39794#39967#0#PHP" />
+                <element signature="n#refresh_plan_list_callback#0;n#!!top" />
+                <element signature="n#refresh_customer_list_callback#0;n#!!top" />
+                <element signature="n#refresh_calculate_callback#0;n#!!top" />
+                <element signature="n#customer_create_ajax_callback#0;n#!!top" />
+                <element signature="n#refresh_price_full_callback#0;n#!!top" />
+                <element signature="n#calculate_all_price#0;n#!!top" />
+                <element signature="n#calculate_all_price_default#0;n#!!top" />
+                <element signature="e#58134#62110#0#PHP" />
+                <element signature="n#calculate_line_item_pricing#0;n#!!top" />
+                <element signature="n#wards_custom_node_presave#0;n#!!top" />
+                <element signature="n#wards_custom_node_update#0;n#!!top" />
+                <element signature="n#wards_custom_entity_insert#0;n#!!top" />
+                <element signature="n#job_node_form_validate#0;n#!!top" />
+                <element signature="n#pricing_form_validation#0;n#!!top" />
+                <element signature="n#pricing_form_validate#0;n#!!top" />
+                <element signature="n#wards_custom_init#0;n#!!top" />
+                <element signature="n#scan_update_form#0;n#!!top" />
                 <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+                <element signature="n#scan_update_ajax_submit#0;n#!!top" />
+                <element signature="n#scan_update_form_submit#0;n#!!top" />
+                <element signature="n#scan_update_form_finished#0;n#!!top" />
+                <element signature="n#wards_custom_mail#0;n#!!top" />
+                <element signature="n#wards_custom_node_submit#0;n#!!top" />
+                <element signature="n#jobs_data_print_ajax#0;n#!!top" />
+                <element signature="n#job_labels_print_pdf#0;n#!!top" />
+                <element signature="n#manifest_data_print_ajax#0;n#!!top" />
+                <element signature="n#manifest_labels_print_pdf#0;n#!!top" />
+                <element signature="n#fest_data_print_pdf#0;n#!!top" />
+                <element signature="n#wards_custom_field_attach_form#0;n#!!top" />
+                <element signature="n#wards_custom_field_add_more_submit#0;n#!!top" />
+                <element signature="n#wards_custom_action_info#0;n#!!top" />
+                <element signature="n#wards_custom_my_custom_action#0;n#!!top" />
+                <element signature="n#wards_custom_cron#0;n#!!top" />
+                <element signature="n#custom_job_invoice_no_update#0;n#!!top" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/wards_custom.info">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="338">
-              <caret line="13" column="24" lean-forward="true" selection-start-line="13" selection-start-column="24" selection-end-line="13" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -134,8 +119,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/templates/page.tpl.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3707">
-              <caret line="16" column="41" lean-forward="true" selection-start-line="16" selection-start-column="41" selection-end-line="16" selection-end-column="41" />
+            <state relative-caret-position="260">
+              <caret line="103" column="21" lean-forward="true" selection-start-line="103" selection-start-column="21" selection-end-line="103" selection-end-column="21" />
               <folding>
                 <element signature="e#0#5#0#PHP" />
               </folding>
@@ -144,12 +129,55 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/taxonomy/taxonomy.module">
-          <provider selected="true" editor-type-id="text-editor" />
+        <entry file="file://$PROJECT_DIR$/modules/simpletest/tests/ajax_test.module">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="296">
+              <caret line="64" column="3" lean-forward="true" selection-start-line="64" selection-start-column="3" selection-end-line="64" selection-end-column="3" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/theme-settings.php">
+        <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/customer-node-form.tpl.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="78">
+              <caret line="3" column="27" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="27" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/templates/views-view--job-status.tpl.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="286">
+              <caret line="36" column="23" lean-forward="true" selection-start-line="36" selection-start-column="23" selection-end-line="36" selection-end-column="23" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/template.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="286">
+              <caret line="119" column="26" lean-forward="true" selection-start-line="119" selection-start-column="26" selection-end-line="119" selection-end-column="26" />
+              <folding>
+                <element signature="n#theme_file_widget_multiple#0;n#!!top" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sites/all/modules/views/theme/views-exposed-form.tpl.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="26">
+              <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sites/all/modules/views/views.module">
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
@@ -157,17 +185,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>node-type-customer</find>
-      <find>my_customer</find>
-      <find>'template' =&gt; '</find>
-      <find>customer-node-form</find>
-      <find>edit-field-s</find>
-      <find>c</find>
+      <find>theme_file_widget</find>
       <find>field_residential_address</find>
-      <find>recent_jobs</find>
-      <find>site-name</find>
-      <find>field_secondary_contact</find>
+      <find>theme_file_widget_multiple</find>
+      <find>fieldset-wrapper</find>
+      <find>theme_fieldset</find>
+      <find>overflow-fix</find>
+      <find>file_widget_multiple</find>
+      <find>dragndrop_upload_file_field_widget_form</find>
+      <find>call_user_func_array</find>
+      <find>atta</find>
+      <find>operaton</find>
+      <find>theme_file_formatter_table</find>
+      <find>function theme_table(</find>
+      <find>File information</find>
+      <find>$form</find>
+      <find>customer_details_ajax_a</find>
+      <find>view-exposed-form</find>
+      <find>copy customer</find>
+      <find>class=&quot;content&quot;</find>
+      <find>views-table</find>
+      <find>'delete'</find>
+      <find>$schema['</find>
+      <find>_customer</find>
       <find>views-exposed-form&quot;</find>
+      <find>block-system-main</find>
+      <find>views-field-title</find>
+      <find>class=&quot;views-table</find>
+      <find>view-dom-id-</find>
+      <find>template_preprocess_views_view</find>
+      <find>view-header</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -177,9 +224,15 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/customer-node-form.tpl.php" />
-        <option value="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/css/style.css" />
         <option value="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/js/custom.js" />
+        <option value="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/css/style.css" />
+        <option value="$PROJECT_DIR$/sites/default/settings.php" />
+        <option value="$PROJECT_DIR$/includes/form.inc" />
+        <option value="$PROJECT_DIR$/sites/all/themes/wards_custom_theme/template.php" />
+        <option value="$PROJECT_DIR$/sites/all/themes/adminimal_theme/template.php" />
+        <option value="$PROJECT_DIR$/modules/file/file.field.inc" />
+        <option value="$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/customer-node-form.tpl.php" />
+        <option value="$PROJECT_DIR$/sites/all/modules/views/theme/views-exposed-form.tpl.php" />
       </list>
     </option>
   </component>
@@ -231,6 +284,64 @@
               <item name="all" type="462c0819:PsiDirectoryNode" />
               <item name="modules" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="public_html" type="b2602c69:ProjectViewProjectNode" />
+              <item name="public_html" type="462c0819:PsiDirectoryNode" />
+              <item name="sites" type="462c0819:PsiDirectoryNode" />
+              <item name="all" type="462c0819:PsiDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="views" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="public_html" type="b2602c69:ProjectViewProjectNode" />
+              <item name="public_html" type="462c0819:PsiDirectoryNode" />
+              <item name="sites" type="462c0819:PsiDirectoryNode" />
+              <item name="all" type="462c0819:PsiDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="views" type="462c0819:PsiDirectoryNode" />
+              <item name="help" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="public_html" type="b2602c69:ProjectViewProjectNode" />
+              <item name="public_html" type="462c0819:PsiDirectoryNode" />
+              <item name="sites" type="462c0819:PsiDirectoryNode" />
+              <item name="all" type="462c0819:PsiDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="views_bulk_operations" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="public_html" type="b2602c69:ProjectViewProjectNode" />
+              <item name="public_html" type="462c0819:PsiDirectoryNode" />
+              <item name="sites" type="462c0819:PsiDirectoryNode" />
+              <item name="all" type="462c0819:PsiDirectoryNode" />
+              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="views_bulk_operations" type="462c0819:PsiDirectoryNode" />
+              <item name="js" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="public_html" type="b2602c69:ProjectViewProjectNode" />
+              <item name="public_html" type="462c0819:PsiDirectoryNode" />
+              <item name="sites" type="462c0819:PsiDirectoryNode" />
+              <item name="all" type="462c0819:PsiDirectoryNode" />
+              <item name="themes" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="public_html" type="b2602c69:ProjectViewProjectNode" />
+              <item name="public_html" type="462c0819:PsiDirectoryNode" />
+              <item name="sites" type="462c0819:PsiDirectoryNode" />
+              <item name="all" type="462c0819:PsiDirectoryNode" />
+              <item name="themes" type="462c0819:PsiDirectoryNode" />
+              <item name="wards_custom_theme" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="public_html" type="b2602c69:ProjectViewProjectNode" />
+              <item name="public_html" type="462c0819:PsiDirectoryNode" />
+              <item name="sites" type="462c0819:PsiDirectoryNode" />
+              <item name="all" type="462c0819:PsiDirectoryNode" />
+              <item name="themes" type="462c0819:PsiDirectoryNode" />
+              <item name="wards_custom_theme" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -239,9 +350,10 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Joomla_css_fix" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Color Scheme Font" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -266,18 +378,17 @@
       <option name="presentableId" value="Default" />
       <updated>1606748477571</updated>
       <workItem from="1606748479337" duration="6222000" />
-      <workItem from="1606844133137" duration="14825000" />
+      <workItem from="1606844133137" duration="66258000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="21047000" />
+    <option name="totallyTimeSpent" value="72480000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25266525" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18603411" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -290,7 +401,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="10" visible="true" weight="0.21585903" />
+      <window_info anchor="bottom" id="Terminal" order="10" weight="0.21585903" />
       <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -305,194 +416,142 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard/standard_7.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="323" column="9" selection-start-line="323" selection-start-column="9" selection-end-line="323" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="8" column="8" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/display-modal-header.tpl.php">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/includes/bootstrap.inc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="3197" column="43" lean-forward="true" selection-start-line="3197" selection-start-column="43" selection-end-line="3197" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/templates/adminimal-status-check.inc">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/views.module">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5772" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/wards_custom.info">
+    <entry file="file://$PROJECT_DIR$/modules/node/node.module">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="78">
-          <caret line="3" column="22" lean-forward="true" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
+          <caret line="3" column="8" lean-forward="true" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/1wards_custom.module">
+    <entry file="file://$PROJECT_DIR$/sites/default/settings.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1248">
-          <folding>
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/includes/theme.inc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-344">
-          <caret line="1011" column="9" selection-start-line="1011" selection-start-column="9" selection-end-line="1011" selection-end-column="9" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="e#25#31#1" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/dashboard/dashboard.module">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-104">
-          <caret line="35" column="27" lean-forward="true" selection-start-line="35" selection-start-column="27" selection-end-line="35" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/themes/adminimal_theme/template.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-156">
-          <caret line="12" column="61" lean-forward="true" selection-start-line="12" selection-start-column="61" selection-end-line="12" selection-end-column="61" />
-          <folding>
-            <element signature="e#7#91#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="10" column="37" selection-start-line="10" selection-start-column="37" selection-end-line="10" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/template.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="284" column="17" lean-forward="true" selection-start-line="284" selection-start-column="17" selection-end-line="284" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/theme-settings.php">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/taxonomy/taxonomy.module">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/wards_custom.info">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="338">
-          <caret line="13" column="24" lean-forward="true" selection-start-line="13" selection-start-column="24" selection-end-line="13" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/block/tests/themes/block_test_theme/page.tpl.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="24" column="23" selection-start-line="24" selection-start-column="23" selection-end-line="24" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/includes/common.inc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="202">
-          <caret line="13198" column="9" selection-start-line="13198" selection-start-column="9" selection-end-line="13198" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/wards_custom.module">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1508">
-          <caret line="422" selection-start-line="422" selection-end-line="422" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#td#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/csvImporter/csvImporter.module">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-570">
-          <caret line="502" column="111" selection-start-line="502" selection-start-column="111" selection-end-line="502" selection-end-column="111" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/customer-node-form.tpl.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-146">
-          <caret line="32" column="59" lean-forward="true" selection-start-line="32" selection-start-column="59" selection-end-line="32" selection-end-column="59" />
-          <folding>
-            <element signature="e#4326#5877#0#HTML" />
-            <element signature="e#5911#7467#0#HTML" />
-            <element signature="e#7505#9073#0#HTML" />
-            <element signature="e#9109#10653#0#HTML" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/templates/page.tpl.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3707">
-          <caret line="16" column="41" lean-forward="true" selection-start-line="16" selection-start-column="41" selection-end-line="16" selection-end-column="41" />
-          <folding>
-            <element signature="e#0#5#0#PHP" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/theme/theme.inc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-546" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/theme/views-more.tpl.php">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/theme/views-exposed-form.tpl.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="39" column="45" lean-forward="true" selection-start-line="39" selection-start-column="45" selection-end-line="39" selection-end-column="45" />
+        <state relative-caret-position="301">
+          <caret line="641" column="28" lean-forward="true" selection-start-line="641" selection-start-column="28" selection-end-line="641" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/css/style.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
-          <caret line="6740" column="21" selection-start-line="6740" selection-start-column="1" selection-end-line="6740" selection-end-column="21" />
+        <state relative-caret-position="-7">
+          <caret line="6680" column="31" selection-start-line="6680" selection-start-column="31" selection-end-line="6680" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/Job-copy/job_copy.info">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="7" selection-start-column="7" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/system/system.api.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="418">
+          <caret line="3318" column="19" lean-forward="true" selection-start-line="3318" selection-start-column="19" selection-end-line="3318" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/node/node.install">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-728">
+          <caret line="11" column="2" selection-start-line="11" selection-start-column="2" selection-end-line="11" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/database/query.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1014" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/database/schema.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="113" column="3" selection-start-line="113" selection-start-column="3" selection-end-line="113" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/admin_menu/admin_menu.install">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="52" column="27" selection-start-line="52" selection-start-column="19" selection-end-line="52" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/block/block.install">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3328">
+          <caret line="10" column="25" lean-forward="true" selection-start-line="10" selection-start-column="25" selection-end-line="10" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/block/block.info">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="182">
+          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/devel/devel.module">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="785" column="14" selection-start-line="785" selection-start-column="14" selection-end-line="785" selection-end-column="14" />
+          <folding>
+            <element signature="e#34#38#0" expanded="true" />
+            <element signature="e#44#48#0" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#textarea#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/libraries/mpdf/classes/form.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="52">
+          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard/_types.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="18" column="13" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/wards_custom.info">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="19" selection-start-column="19" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/rules/ui/ui.theme.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="66" column="134" selection-start-line="66" selection-start-column="134" selection-end-line="66" selection-end-column="134" />
+          <folding>
+            <element signature="e#83#89#1" expanded="true" />
+            <element signature="e#83#89#1" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/misc/tabledrag.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="156" column="27" selection-start-line="156" selection-start-column="27" selection-end-line="156" selection-end-column="27" />
+          <folding>
+            <element signature="e#57#63#1" expanded="true" />
+            <element signature="e#25#31#1" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/js/custom.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="74">
-          <caret line="1261" lean-forward="true" selection-start-line="1261" selection-end-line="1261" />
+        <state relative-caret-position="334">
+          <caret line="1271" column="89" lean-forward="true" selection-start-line="1271" selection-start-column="89" selection-end-line="1271" selection-end-column="89" />
           <folding>
             <element signature="e#15#21#0" expanded="true" />
             <element signature="e#67#73#0" expanded="true" />
@@ -503,6 +562,295 @@
             <element signature="e#86#92#0" expanded="true" />
             <element signature="n#style#0;n#span#0;n#center#0;n#!!top" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/modules/system.views.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="154" column="8" selection-start-line="154" selection-start-column="8" selection-end-line="154" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/dashboard-content.tpl.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/field_group/horizontal-tabs/horizontal-tabs.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1352">
+          <caret line="52" column="35" selection-start-line="52" selection-start-column="35" selection-end-line="52" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/Job-copy/job_copy.module">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-7">
+          <caret line="355" column="40" selection-start-line="355" selection-start-column="40" selection-end-line="355" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/system/system.install">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-10">
+          <caret line="662" column="25" selection-start-line="662" selection-start-column="25" selection-end-line="662" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/file.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-18">
+          <caret line="1408" column="24" selection-start-line="1408" selection-start-column="9" selection-end-line="1408" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/database/select.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1606">
+          <caret line="597" column="31" selection-start-line="597" selection-start-column="31" selection-end-line="597" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/theme.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="416">
+          <caret line="1987" selection-start-line="1987" selection-end-line="1987" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="e#25#31#1" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/dragndrop_upload/modules/dragndrop_upload_file/dragndrop_upload_file.module">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-7">
+          <caret line="153" column="9" selection-start-line="153" selection-start-column="9" selection-end-line="153" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/form.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-18">
+          <caret line="2934" column="35" selection-start-line="2934" selection-start-column="35" selection-end-line="2934" selection-end-column="35" />
+          <folding>
+            <element signature="e#5#11#1" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/themes/adminimal_theme/template.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="444">
+          <caret line="465" column="53" lean-forward="true" selection-end-line="561" selection-end-column="1" />
+          <folding>
+            <element signature="e#7#91#0#PHP" expanded="true" />
+            <element signature="n#adminimal_table#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/file/file.field.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1534">
+          <caret line="847" column="25" lean-forward="true" selection-start-line="847" selection-start-column="25" selection-end-line="847" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/job-node-form.tpl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1092">
+          <caret line="236" column="35" selection-start-line="236" selection-start-column="15" selection-end-line="236" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/manifest-node-form.tpl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="23" selection-start-column="12" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/common.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1579">
+          <caret line="12020" column="9" selection-start-line="12020" selection-start-column="9" selection-end-line="12020" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/wards_custom.info">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/1wards_custom.module">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2356">
+          <caret line="771" column="1" lean-forward="true" selection-start-line="771" selection-start-column="1" selection-end-line="771" selection-end-column="1" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/wards_custom.module">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="379">
+          <caret line="62" column="30" lean-forward="true" selection-start-line="62" selection-start-column="30" selection-end-line="62" selection-end-column="30" />
+          <folding>
+            <element signature="n#bar128#0;n#!!top" />
+            <element signature="n#style#0;n#div#0;n#td#0;n#!!top" expanded="true" />
+            <element signature="n#create_job#0;n#!!top" />
+            <element signature="e#5254#5289#0#PHP" />
+            <element signature="n#wards_custom_form_alter#0;n#!!top" />
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="e#33572#33619#0#PHP" />
+            <element signature="e#35439#35613#0#PHP" />
+            <element signature="n#individual_pricing_validate_weight#0;n#!!top" />
+            <element signature="n#individual_pricing_validate_pl_spc#0;n#!!top" />
+            <element signature="e#39794#39967#0#PHP" />
+            <element signature="n#refresh_plan_list_callback#0;n#!!top" />
+            <element signature="n#refresh_customer_list_callback#0;n#!!top" />
+            <element signature="n#refresh_calculate_callback#0;n#!!top" />
+            <element signature="n#customer_create_ajax_callback#0;n#!!top" />
+            <element signature="n#refresh_price_full_callback#0;n#!!top" />
+            <element signature="n#calculate_all_price#0;n#!!top" />
+            <element signature="n#calculate_all_price_default#0;n#!!top" />
+            <element signature="e#58134#62110#0#PHP" />
+            <element signature="n#calculate_line_item_pricing#0;n#!!top" />
+            <element signature="n#wards_custom_node_presave#0;n#!!top" />
+            <element signature="n#wards_custom_node_update#0;n#!!top" />
+            <element signature="n#wards_custom_entity_insert#0;n#!!top" />
+            <element signature="n#job_node_form_validate#0;n#!!top" />
+            <element signature="n#pricing_form_validation#0;n#!!top" />
+            <element signature="n#pricing_form_validate#0;n#!!top" />
+            <element signature="n#wards_custom_init#0;n#!!top" />
+            <element signature="n#scan_update_form#0;n#!!top" />
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#scan_update_ajax_submit#0;n#!!top" />
+            <element signature="n#scan_update_form_submit#0;n#!!top" />
+            <element signature="n#scan_update_form_finished#0;n#!!top" />
+            <element signature="n#wards_custom_mail#0;n#!!top" />
+            <element signature="n#wards_custom_node_submit#0;n#!!top" />
+            <element signature="n#jobs_data_print_ajax#0;n#!!top" />
+            <element signature="n#job_labels_print_pdf#0;n#!!top" />
+            <element signature="n#manifest_data_print_ajax#0;n#!!top" />
+            <element signature="n#manifest_labels_print_pdf#0;n#!!top" />
+            <element signature="n#fest_data_print_pdf#0;n#!!top" />
+            <element signature="n#wards_custom_field_attach_form#0;n#!!top" />
+            <element signature="n#wards_custom_field_add_more_submit#0;n#!!top" />
+            <element signature="n#wards_custom_action_info#0;n#!!top" />
+            <element signature="n#wards_custom_my_custom_action#0;n#!!top" />
+            <element signature="n#wards_custom_cron#0;n#!!top" />
+            <element signature="n#custom_job_invoice_no_update#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/templates/page.tpl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="103" column="21" lean-forward="true" selection-start-line="103" selection-start-column="21" selection-end-line="103" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#5#0#PHP" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/simpletest/tests/ajax.test">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="92" column="67" selection-start-line="92" selection-start-column="67" selection-end-line="92" selection-end-column="67" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/simpletest/tests/ajax_test.module">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="296">
+          <caret line="64" column="3" lean-forward="true" selection-start-line="64" selection-start-column="3" selection-end-line="64" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/template.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="119" column="26" lean-forward="true" selection-start-line="119" selection-start-column="26" selection-end-line="119" selection-end-column="26" />
+          <folding>
+            <element signature="n#theme_file_widget_multiple#0;n#!!top" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/views.module">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/theme/views-view-table.tpl.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/theme/views-exposed-form.tpl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="26">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/custom/wards_custom/templates/customer-node-form.tpl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="78">
+          <caret line="3" column="27" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/templates/views-view--freight-management-manifest.tpl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="78">
+          <caret line="28" column="2" lean-forward="true" selection-start-line="28" selection-start-column="2" selection-end-line="28" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/templates/views-view--freight-management-job.tpl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="312">
+          <caret line="74" column="53" selection-start-line="74" selection-start-column="53" selection-end-line="74" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/help/theme-css.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="487">
+          <caret line="68" column="14" selection-start-line="68" selection-start-column="14" selection-end-line="68" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/views_bulk_operations/js/views_bulk_operations.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="24" column="51" selection-start-line="24" selection-start-column="51" selection-end-line="24" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/views/theme/theme.inc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="254">
+          <caret line="45" lean-forward="true" selection-start-line="45" selection-end-line="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/modules/views_autorefresh/views_autorefresh.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="236">
+          <caret line="20" column="7" lean-forward="true" selection-start-line="20" selection-start-column="7" selection-end-line="20" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sites/all/themes/wards_custom_theme/templates/views-view--job-status.tpl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="36" column="23" lean-forward="true" selection-start-line="36" selection-start-column="23" selection-end-line="36" selection-end-column="23" />
         </state>
       </provider>
     </entry>

@@ -6670,15 +6670,18 @@ li.pickup_yellow .ready-up {
 }
 
 #branding {
-   position: fixed;
+   /*position: fixed;*/
    width: 100%;
-   top: 29px;
+   /*top: 29px;*/
    z-index: 9;
    left: 0;
 }
 
 #page {
-    margin-top: 60px;
+    margin-top: 10px!important;
+}
+#page div#main-content {
+    margin-top: 0;
 }
 tr.views-table-highlighter-green.even, tr.views-table-highlighter-green.even:hover {
     background-color: #9f9 !important;

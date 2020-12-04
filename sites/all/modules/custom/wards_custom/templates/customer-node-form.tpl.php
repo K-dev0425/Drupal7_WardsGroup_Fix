@@ -62,7 +62,8 @@
    <?php print drupal_render($form['group_attachments']); ?>
 <?php endif; ?>
 <?php if (!empty($form['field_attachment'])): ?>
-   <?php print drupal_render($form['field_attachment']); ?>
+   <?php print drupal_render($form['field_attachment']);
+   var_dump('tete')?>
 <?php endif; ?>
 
 <?php if (!empty($form['recent_jobs'])): ?>
@@ -233,8 +234,5 @@
        });
 
     }
-
-
-
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9VS2sqQ9FzJp4eaWfIPcgRUNusc-23yk&libraries=places&callback=initAutocomplete" async defer></script>
