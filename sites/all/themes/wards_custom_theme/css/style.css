@@ -5774,6 +5774,7 @@ form#pricing-node-form>div>div.vertical-tabs {
 }
 
 .col-sm-10.text-right.print-tab {
+    padding-bottom: 10px;
     float: right;
 }
 
@@ -6746,6 +6747,24 @@ height: 40px;
 }
 .page-manage-customer #edit-field-pricing-plan-target-id-wrapper .views-operator, .page-manage-customer #edit-field-pricing-plan-target-id-wrapper .views-widget {
     display: inline-block;
+}
+
+#field-collection-ajax-field-pricing-details-landing-pad {
+  max-width: 1000px;
+  margin: auto;
+  max-height: 500px;
+}
+
+#field-collection-ajax-field-pricing-details-landing-pad form {
+  padding: 50px;
+  background: rgb(255, 255, 255);
+}
+
+#field-collection-ajax-field-pricing-details-landing-pad > button.close {
+  position: relative;
+  top: 40px;
+  right: 20px;
+  font-size: 35px;
 }
 
 @media (max-width: 767px){

@@ -268,10 +268,10 @@ function field_collection_ajax_build_item_table(&$element, $field_state) {
   }
 
   // And add the operations that will always exist.
-  $table_fields['_operations'] = t('Operations');
+    $table_fields['_operations'] = t('Operations');
 
-  // Overwrite $widget because it may already exist and if items were removed we
-  // want them to truly be removed.
+    // Overwrite $widget because it may already exist and if items were removed we
+    // want them to truly be removed.
   $element['container']['collection']['widget'] = array(
     '#theme' => 'field_collection_ajax_widget',
     '#field_name' => $element['#field_name'],
@@ -707,6 +707,15 @@ function field_collection_ajax_edit_item_form_callback($form, &$form_state) {
       'command' => 'fcajaxScrollTop',
       'selector' => field_collection_ajax_identifier($element, '.collection'),
     );
+
+    //Added by Lee
+    if ($form['#entity']->field_name == 'field_pricing_details') {
+        $commands[] = array(
+            'command' => 'hide_modal_pricing',
+            'selector' => field_collection_ajax_identifier($element, '.landing-pad'),
+        );
+    }
+
   }
 
   return array('#type' => 'ajax', '#commands' => $commands);

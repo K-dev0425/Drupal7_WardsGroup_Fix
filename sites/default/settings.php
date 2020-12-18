@@ -250,8 +250,8 @@
      'default' =>
      array (
        'database' => 'wardsgro_wardsgroup',
-       'username' => 'wardsgro_wardsD7',
-       'password' => 'Auxesis123!',
+       'username' => 'root',
+       'password' => '',
        'host' => 'localhost',
        'port' => '3306',
        'driver' => 'mysql',

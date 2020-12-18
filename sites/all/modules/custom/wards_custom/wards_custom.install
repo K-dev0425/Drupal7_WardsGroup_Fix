@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the wards_custom module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function wards_custom_install() {
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function wards_custom_schema() {
+    $schema = array();
+    $schema['pricing_plans'] = array(
+        'description' => 'Stores Pricing Plans.',
+        'fields' => array(
+            'pid' => array(
+                'type' => 'int',
+                'not null' => TRUE,
+                'unsigned' => TRUE,
+                'description' => 'Primary Key: Role ID.',
+            ),
+            'nid' => array(
+                'type' => 'int',
+                'not null' => TRUE,
+                'unsigned' => TRUE,
+                'default' => NULL,
+                'description' => 'The id of the corresponding node.',
+            ),
+            'title' => array(
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => TRUE,
+                'default' => '',
+                'description' => 'The title of the plan.',
+            ),
+        ),
+        'indexes' => array(
+            'node_number' => array('nid'),
+        ),
+        'primary key' => array('pid'),
+    );
+
+    return $schema;
+}
+

@@ -62,8 +62,7 @@
    <?php print drupal_render($form['group_attachments']); ?>
 <?php endif; ?>
 <?php if (!empty($form['field_attachment'])): ?>
-   <?php print drupal_render($form['field_attachment']);
-   var_dump('tete')?>
+   <?php print drupal_render($form['field_attachment']); ?>
 <?php endif; ?>
 
 <?php if (!empty($form['recent_jobs'])): ?>
@@ -234,5 +233,34 @@
        });
 
     }
+
+    jQuery(document).ready(function () {
+
+        jQuery('#edit-field-site-name-und-add-more').attr('onclick', 'func(e)');
+
+        jQuery('#customer-node-form').submit(function(){
+            var site_input_array = jQuery('.field-name-field-site-name-property input');
+            var last_name = site_input_array[site_input_array.length - 1].value;
+            for (var i = 0; i < site_input_array.length; i++) {
+                if (i < (site_input_array.length - 1) && site_input_array[i].value == last_name) {
+                    alert('Site name already exists - please enter a different site name.');
+                    return false;
+                }
+            }
+        });
+    })
+
+    function func(e) {
+       e.preventDefault();
+        var site_input_array = jQuery('.field-name-field-site-name-property input');
+        var last_name = site_input_array[site_input_array.length - 1].value;
+        for (var i = 0; i < site_input_array.length; i++) {
+            if (i < (site_input_array.length - 1) && site_input_array[i].value == last_name) {
+                alert('Site name already exists - please enter a different site name.');
+                return false;
+            }
+        }
+    }
+
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9VS2sqQ9FzJp4eaWfIPcgRUNusc-23yk&libraries=places&callback=initAutocomplete" async defer></script>

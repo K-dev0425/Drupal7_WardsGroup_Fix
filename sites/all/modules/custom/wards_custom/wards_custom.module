@@ -199,6 +199,9 @@ function wards_custom_form_alter(&$form, &$form_state, $form_id) {
   //   $form['actions']['cancel']['#title'] = 'No';
   // //  echo"<pre>"; print_r($form); die();
   // }
+
+    dpm($form);
+
   if($form_id  == "field_collection_ajax_edit_item_form"){
     $form['#attributes']['autocomplete'] = 'off';
     $form['#validate'][] = 'pricing_form_validate';
@@ -279,14 +282,22 @@ function wards_custom_form_alter(&$form, &$form_state, $form_id) {
     }
   }
   }
-  if($form_id == 'views_exposed_form' && $form_state['view']->name == "freight_management_job") {
-      $form['created']['max']['#attributes']['placeholder'] = t( "Enter Date" );
-      $form['created']['min']['#attributes']['placeholder'] = t( "Enter Date" );
-      $form['outstand'] = array(
-      '#title' => t('Outstanding'),
-      '#type' => 'checkbox',
-      '#weight' => -1,
-     );
+  if($form_id == 'views_exposed_form') {
+      if ($form_state['view']->name == "freight_management_job") {
+          $form['created']['max']['#attributes']['placeholder'] = t( "Enter Date" );
+          $form['created']['min']['#attributes']['placeholder'] = t( "Enter Date" );
+          $form['outstand'] = array(
+              '#title' => t('Outstanding'),
+              '#type' => 'checkbox',
+              '#weight' => -1,
+          );
+      }
+
+//      UPDATED BY LEE
+      if ($form_state['view']->name == '_manage_customer') {
+          $form['field_pricing_plan_target_id']['#options'] += array('None' => t('No Plan'));
+      }
+
   }
   if ($form_id == 'customer_node_form') {
     $form['#attributes']['autocomplete'] = 'off';
@@ -315,11 +326,17 @@ function wards_custom_form_alter(&$form, &$form_state, $form_id) {
   }
   if ($form_id == 'job_node_form') {
 
+      // dpm($form_state);
+
+      if ($form_state['clicked_button']['#value'] == 'Copy') {
+          dpm($form_state);
+      }
+
     $form['#attributes']['autocomplete'] = 'off';
 
     $form['field_invoice_no'][LANGUAGE_NONE][0]['value']['#attributes'] = array('disabled' => 'disabled');
 
-    $form['field_delivery_status']['#suffix'] = '<div id="pickup_click"><span id="pickup_click_value"class="btn btn-success">Pickup</span></div><div id="recieved_in_click"><span id="recieved_in_click_value"class="btn btn-success">Recieved In</span></div>';
+    $form['field_delivery_status']['#suffix'] = '<div id="pickup_click"><span id="pickup_click_value" class="btn btn-success">Pickup</span></div><div id="recieved_in_click"><span id="recieved_in_click_value"class="btn btn-success">Recieved In</span></div>';
   	 $nid = $form['nid']['#value'];
   	 $job = node_load($nid);
 
@@ -406,7 +423,7 @@ function wards_custom_form_alter(&$form, &$form_state, $form_id) {
 
 	 	$fc = array();
       $field_colleciton_item_id = $form['field_items']['und'][$key]['field_item_details']['und'][0]['#entity']->hostEntity()->item_id;
-      if(isset($field_colleciton_item_id)) {
+        if(isset($field_colleciton_item_id)) {
 	 	  $fc = field_collection_item_load($field_colleciton_item_id);
 	 	}
 
@@ -577,7 +594,52 @@ function wards_custom_form_alter(&$form, &$form_state, $form_id) {
       }
     }
   }
+
+  if($form_id == 'manifest_node_form') {
+//      print_r($form['actions']);
+      $form['actions']['save-new-button'] = array(
+          '#type' => 'submit',
+          '#value' => 'Save & New',
+          '#submit' => array('node_form_submit'),
+          '#weight' => 7,
+      );
+  }
+
+  if ($form_id == 'search_block_form') {
+      $form['actions']['save-new-button'] = array(
+          '#type' => 'submit',
+          '#value' => 'Save & New',
+          '#submit' => array('node_form_submit'),
+          '#weight' => 7,
+      );
+  }
 }
+
+
+//UPDATED BY LEE
+function wards_custom_views_query_alter(&$view, &$query) {
+    if ($query->where['1']['conditions']['2']['value'][0] == 'None') {
+        $db_query = db_select('field_data_field_pricing_plan', 'f');
+        $db_query -> fields('f', array('entity_id'));
+        $result = $db_query -> execute() -> fetchCol();
+        $query->where['1']['conditions']['2']['field'] = 'node.nid';
+        $query->where['1']['conditions']['2']['operator'] = 'not in';
+        $query->where['1']['conditions']['2']['value'] = $result;
+    }
+    if ($query->orderby[0]['field'] == 'node_created') {
+        $query->orderby[0] = $query->orderby[1];
+        unset($query->orderby[1]);
+    }
+
+    if ($view->human_name == 'Freight Management Manifest' && count($query->orderby[0]) == 0) {
+        $query->orderby[0]['field'] = 'node_title';
+        $query->orderby[0]['direction'] = 'ASC';
+    }
+
+    dpm(count($query->orderby[0]));
+    dpm($view);
+}
+
 
 // function csvImporter_upload_enabled_types_submit($form, &$form_state){
 
@@ -1911,7 +1973,13 @@ function wards_custom_node_submit($node, $form, &$form_state) {
               drupal_goto('/dashboard');
             }
             else if($form_state['values']['op'] == 'Save & New'){
-              drupal_goto('node/add/'.$node->type);
+                if ($node->type == 'manifest') {
+                    drupal_set_message('Your manifest has been saved');
+                    drupal_goto('/dashboard');
+                }
+                else {
+                    drupal_goto('node/add/'.$node->type);
+                }
             }
             else{
               drupal_goto('node/'.$node->nid.'/edit');
@@ -1930,7 +1998,13 @@ function wards_custom_node_submit($node, $form, &$form_state) {
               drupal_goto('/dashboard');
             }
             else if($form_state['values']['op'] == 'Save & New'){
-              drupal_goto('node/add/'.$node->type);
+                if ($node->type == 'manifest') {
+                    drupal_set_message('Your manifest has been saved');
+                    drupal_goto('/dashboard');
+                }
+                else {
+                    drupal_goto('node/add/'.$node->type);
+                }
             }
             else{
              drupal_goto('node/'.$node->nid.'/edit');
@@ -2060,7 +2134,7 @@ function wards_custom_field_attach_form($entity_type, $entity, &$form, &$form_st
      }
    }
 
-      function wards_custom_action_info() {
+   function wards_custom_action_info() {
      return array(
      'wards_custom_my_custom_action' => array(
        'type' => 'entity',
@@ -2254,3 +2328,144 @@ $node->field_job_status[LANGUAGE_NONE][0]['target_id'] = 239;
 }
 variable_set('job_last_run',time());
 }
+
+//UPDATED BY LEE
+function wards_custom_field_widget_form_alter(&$element, &$form_state, $context) {
+
+    if ($element['#field_name'] == 'field_pricing_details') {
+        $items = $context['items'];
+
+        dpm($element);
+
+        $element['container']['add']['#ajax'] =  array(
+            'callback' => 'pricing_field_collection_ajax_add_item_callback'
+        );
+
+        foreach ($items as $delta => $item) {
+            $element['container']['collection']['widget'][$delta]['_operations']['edit']['#ajax'] = array(
+                'callback' => 'pricing_field_collection_ajax_edit_item_callback'
+            );
+        }
+    }
+
+    if ($element['#field_name'] == 'field_items') {
+        dpm($element);
+    }
+
+//    if ($form_state['build_info']['form_id'] == 'job_node_form') {
+//        if ($element['remove_button']['#name'] == 'field_items_und_0_remove_button') {
+//
+//            dpm($context['instance']['widget']['type']);
+//
+//            $field_parents = $element['#field_parents'];
+//            $field_name = $element['#field_name'];
+//            $language = $element['#language'];
+//
+//            $parents = array_merge($field_parents, array($field_name, $language, $context['delta']));
+//
+//
+//            $element['copy_button'] = array(
+//                '#delta' => $context['delta'],
+//                '#name' => implode('_', $parents) . '_copy_button',
+//                '#type' => 'submit',
+//                '#value' => t('Copy'),
+//                '#validate' => array(),
+//                '#submit' => array('field_collection_remove_submit'),
+//                '#limit_validation_errors' => array(),
+//                '#ajax' => array(
+//                    // 'wrapper' is filled in field_collection_field_attach_form().
+//                    'callback' => 'field_collection_copy_js',
+//                    'effect' => 'fade',
+//                ),
+//                '#weight' => 100,
+//            );
+//        }
+//    }
+}
+
+function wards_custom_field_widget_text_textarea_with_summary_form_alter(&$element, &$form_state, $context) {
+    if ($element['#field_name'] == 'field_notes') {
+        $element['#theme'] = 'note_widget_multiple';
+    }
+//    dpm($element);
+}
+
+/**
+ * AJAX form callback to render the add item form.
+ */
+function pricing_field_collection_ajax_edit_item_callback($form, &$form_state) {
+    $button = $form_state['triggering_element'];
+    $element = drupal_array_get_nested_value($form, $button['#element_address']);
+
+    $field_state = field_collection_ajax_get_state($element, $form_state);
+
+    // Fetch the item based on the #delta stored in the button.
+    $field_collection_item = field_collection_field_get_entity($field_state['items'][$button['#delta']], $element['#field_name']);
+
+    // Set up a form_state for the add item form..
+    $edit_item_form_state = array(
+        'element_address' => $element['#parents'],
+        'original_form_id' => $form['#build_id'],
+        'field_collection_item' => $field_collection_item,
+        'delta' => $button['#delta'],
+        'language' => $element['#language'],
+    );
+
+    // Build the new form.
+    $edit_item_form = drupal_build_form('field_collection_ajax_edit_item_form', $edit_item_form_state);
+
+    // Render the form onto the landing pad.
+    $commands[] = ajax_command_html(field_collection_ajax_identifier($element, '.landing-pad'), theme('status_messages') . drupal_render($edit_item_form));
+    $commands[] = array(
+        'command' => 'fcajaxScrollTop',
+        'selector' => field_collection_ajax_identifier($element, '.landing-pad'),
+    );
+
+    //Added
+    $commands[] = array(
+        'command' => 'display_modal_instead_bottom',
+        'selector' => field_collection_ajax_identifier($element, '.landing-pad'),
+    );
+
+    return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+function pricing_field_collection_ajax_add_item_callback($form, &$form_state) {
+    $element = drupal_array_get_nested_value($form, $form_state['triggering_element']['#element_address']);
+
+    $field_state = field_collection_ajax_get_state($element, $form_state);
+
+    // Create a new item for the purposes of editing.
+    $field_collection_item = entity_create('field_collection_item', array('field_name' => $element['#field_name']));
+
+    // Set up a form_state for the add item form..
+    $add_item_form_state = array(
+        'element_address' => $element['#parents'],
+        'original_form_id' => $form['#build_id'],
+        'field_collection_item' => $field_collection_item,
+        'delta' => $field_state['items'] ? max(array_keys($field_state['items'])) + 1 : 0,
+        'language' => $element['#language'],
+    );
+
+    // Build the new form.
+    $add_item_form = drupal_build_form('field_collection_ajax_edit_item_form', $add_item_form_state);
+
+    // Render the form onto the landing pad.
+    $commands[] = ajax_command_html(field_collection_ajax_identifier($element, '.landing-pad'), theme('status_messages') . drupal_render($add_item_form));
+    $commands[] = array(
+        'command' => 'fcajaxScrollTop',
+        'selector' => field_collection_ajax_identifier($element, '.landing-pad'),
+    );
+
+    $commands[] = array(
+        'command' => 'display_modal_instead_bottom',
+        'selector' => field_collection_ajax_identifier($element, '.landing-pad'),
+    );
+
+    return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+//function wards_custom_build_item_table_alter(&$element, $field_state) {
+//    dpm($element);
+//    dpm($field_state['items']);
+//}
