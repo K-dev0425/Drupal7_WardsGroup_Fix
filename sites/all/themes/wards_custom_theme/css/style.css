@@ -4156,7 +4156,7 @@ fieldset#edit-field-pricing-plan-und legend {
   display: none;
 }
 #scan-update-form .form-item {
-  width: 48%;
+  width: 31.33%;
   float: left;
   padding: 15px;
   margin: 0 1%;
@@ -6765,6 +6765,102 @@ height: 40px;
   top: 40px;
   right: 20px;
   font-size: 35px;
+}
+
+table[id^='field-note-values'] {
+  min-width: 1000px;
+}
+
+table[id^='field-note-values'] tr th:nth-child(2), table[id^='field-note-values'] tr td:nth-child(2) {
+  width: 60%;
+}
+table[id^='field-note-values'] tr td.field-note-date, table[id^='field-note-values'] tr td.field-note-author {
+  width: 15%;
+}
+table[id^='field-note-values'] tr td.field-note-date div.field-name-field-note-date, table[id^='field-note-values'] tr td.field-note-author div.field-name-field-note-author {
+  width: 100%!important;
+}
+table[id^="field-note-values"] tr td.field-note-date input, table[id^="field-note-values"] tr td.field-note-author input {
+  background: #ddd;
+}
+table[id^="field-note-values"] tr:last-child td.field-note-date input.empty_input {
+  visibility: hidden;
+}
+.node-customer-form .form-item.form-type-textfield.form-item-title {
+  width: 25%;
+}
+.node-customer-form div#plan-list {
+  width: 25%;
+}
+.node-type-customer .refresh-plan-wrapper {
+  width: 30%;
+}
+.node-customer-form #edit-field-status {
+  width: 20%;
+  display: inline-block;
+  margin-top: 0!important;
+}
+.node-customer-form span.add-plan-link {
+  float: none;
+}
+.input_discount {
+    max-width: 70px;
+    border: 1px solid #333;
+    border-radius: 3px;
+    padding: 3px 5px;
+}
+#scan-options-wrapper .form-item-date {
+  /*float: none;*/
+  margin: auto;
+}
+#scan-options-wrapper .form-item-date:before {
+  content: "\f017";
+  text-align: center;
+  margin: 0 auto 20px;
+  font-family: fontawesome;
+  font-size: 80px;
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  color: #2e77b8;
+}
+#scan-options-wrapper .form-item-date label {
+  position: relative;
+  top: 5px;
+}
+#scan-options-wrapper .form-item-date #edit-date .form-item {
+  display: inline-block;
+  padding: 0;
+}
+#scan-options-wrapper .form-item-date #edit-date .form-item select {
+  width: 100%;
+}
+#scan-options-wrapper .form-item-date #edit-date .form-item .select2-container {
+  width: 100%;
+}
+#field-collection-ajax-field-pricing-details-collection-values th, #field-collection-ajax-field-pricing-details-collection-values td {
+  text-align: center;
+}
+#field-collection-ajax-field-pricing-details-collection-values td > div {
+  float: none;
+  width: auto;
+}
+#scan-update-form .form-item-date {
+  border: 4px solid #2e77b8;
+  margin: 0 1%;
+  text-align: center;
+  padding: 10px;
+}
+#scan-update-form .form-item-date label {
+  width: 30%;
+  float: left;
+}
+#scan-update-form .form-item-date #edit-date {
+  width: 70%;
+  float: left;
+}
+#scan-update-form .form-item-date #edit-date .select2-container {
+  width: 100% !important;
 }
 
 @media (max-width: 767px){

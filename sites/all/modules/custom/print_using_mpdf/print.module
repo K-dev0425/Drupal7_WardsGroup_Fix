@@ -12,6 +12,15 @@ function print_menu(){
         'type' => MENU_CALLBACK,
         'access arguments' => array('access content'),
     );
+// ADDED BY L
+    $items['job/print/all'] = array(
+        'page callback' => 'job_print_all',
+        'access callback' => TRUE,
+    );
+    $items['manifest/print/all'] = array(
+        'page callback' => 'pricing_update',
+        'access callback' => TRUE,
+    );
     return $items;
 }
 
@@ -20,6 +29,7 @@ function job_data_print_pdf(){
   $page_id = $_GET['job_id'];
   $node = node_load($page_id);
   $conote = $node->field_connote_no['und'][0]['value'];
+//  return $html;
   pdf_using_mpdf_api($html, $conote, 'job');
 
 }
@@ -30,6 +40,12 @@ function manifest_data_print_pdf(){
   pdf_using_mpdf_api($html, 'abc');
 }
 
+function job_print_all() {
+    $html = theme('job_print');
+    $query = $_GET;
+    return $html;
+//    print_r($query);
+}
 
 //custom theme
 function print_theme(){

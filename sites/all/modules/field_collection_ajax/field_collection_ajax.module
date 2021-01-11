@@ -653,6 +653,15 @@ function field_collection_ajax_edit_item_form_callback($form, &$form_state) {
       'command' => 'fcajaxScrollTop',
       'selector' => field_collection_ajax_identifier($element, '.landing-pad'),
     );
+
+      //Added by Lee
+      if ($form['#entity']->field_name == 'field_pricing_details') {
+          $commands[] = array(
+              'command' => 'display_modal_instead_bottom',
+              'selector' => field_collection_ajax_identifier($element, '.landing-pad'),
+          );
+      }
+
   }
   else {
     $field_state = field_collection_ajax_get_state($element, $original_form_state);
@@ -738,6 +747,14 @@ function field_collection_ajax_edit_item_form_cancel($form, &$form_state) {
     'command' => 'fcajaxScrollTop',
     'selector' => field_collection_ajax_identifier($element, '.collection'),
   );
+
+    //Added by Lee
+    if ($form['#entity']->field_name == 'field_pricing_details') {
+        $commands[] = array(
+            'command' => 'hide_modal_pricing',
+            'selector' => field_collection_ajax_identifier($element, '.landing-pad'),
+        );
+    }
 
   return array('#type' => 'ajax', '#commands' => $commands);
 }

@@ -69,7 +69,7 @@
    <?php print drupal_render($form['recent_jobs']); ?>
 <?php endif; ?>
 
-<?php print drupal_render_children($form); ?>
+<?php //print drupal_render_children($form); ?>
 	</div>
 	</div>
 </div>
@@ -248,7 +248,7 @@
                 }
             }
         });
-    })
+    });
 
     function func(e) {
        e.preventDefault();
@@ -263,4 +263,4 @@
     }
 
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9VS2sqQ9FzJp4eaWfIPcgRUNusc-23yk&libraries=places&callback=initAutocomplete" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9emLZiouaeOl-VHLahjZdOdOIMy2tGmE&libraries=places&callback=initAutocomplete" async defer></script>

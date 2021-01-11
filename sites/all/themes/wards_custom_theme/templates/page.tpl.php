@@ -27,63 +27,59 @@
     $job_id = arg(1);
     $nid = node_load($job_id);
 
-    dpm($job_id);
-
     if ($job_id == 'jobs') { ?>
         <div class="col-sm-10 text-right print-tab">
             <div class="row ">
-                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashbord</h1></a>
+                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashboard</h1></a>
                 <a href="?q=create-job"><h1>New Job</h1></a>
+<!--                <button type="button" class="btn btn-default" id="btn_new_manifest" data-toggle="modal" data-target="#create_new_manifest_popup">New Manifest</button>-->
                 <a href="?q=manage-freight/jobs"><h1>Manage Freight</h1></a>
                 <a href="?q=scan/updates"><h1>Status Update</h1></a>
                 <a href="?q=manage-customer"><h1>Customer Management</h1></a>
                 <a href="?q=pricing"><h1>Pricing</h1></a>
                 <a class="customm-menu-padding" href="?q=billing"><h1>Billing</h1></a>
-                <a href="#"><h1>Manage Employees</h1></a>
-                <a href="#"><h1>Manage Users</h1></a>
-                <a href="#"><h1>Audit Log</h1></a>
-                <a href="#"><h1>Manage Items</h1></a>
-
+                <a href="?q=manage-employee"><h1>Manage Employees</h1></a>
+                <a href="?q=admin/structure/taxonomy/item_type"><h1>Manage Items</h1></a>
 
                 <button type="button" class="btn btn-default" id="single_job_print_labels"> Print Labels</button>
+                <button type="button" class="btn btn-default" id="print_job_all">Print All</button>
                 <!--    <a href="?q=create-job"><h1>Create New Job</h1></a>-->
-                <a href="?q=job/data/print/pdf&job_id=<?php echo $job_id; ?>" target='_blank'><h1>Print</h1></a>
+<!--                <a href="?q=job/data/print/pdf&job_id=--><?php //echo $job_id; ?><!--" target='_blank'><h1>Print</h1></a>-->
                 <a href="?q=create-copy-job/<?php echo $job_id; ?>"><h1>Copy Job</h1></a>
             </div>
         </div>
     <?php } else if ($job_id == 'manifest') { ?>
         <div class="col-sm-10 text-right print-tab manifest-tab-box">
             <div class="row ">
-                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashbord</h1></a>
+                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashboard</h1></a>
                 <a href="?q=create-job"><h1>New Job</h1></a>
+<!--                <button type="button" class="btn btn-default" id="btn_new_manifest" data-toggle="modal" data-target="#create_new_manifest_popup">New Manifest</button>-->
                 <a href="?q=manage-freight/jobs"><h1>Manage Freight</h1></a>
                 <a href="?q=scan/updates"><h1>Status Update</h1></a>
                 <a href="?q=manage-customer"><h1>Customer Management</h1></a>
                 <a href="?q=pricing"><h1>Pricing</h1></a>
                 <a class="customm-menu-padding" href="?q=billing"><h1>Billing</h1></a>
-                <a href="#"><h1>Manage Employees</h1></a>
-                <a href="#"><h1>Manage Users</h1></a>
-                <a href="#"><h1>Audit Log</h1></a>
-                <a href="#"><h1>Manage Items</h1></a>
+                <a href="?q=manage-employee"><h1>Manage Employees</h1></a>
+                <a href="?q=admin/structure/taxonomy/item_type"><h1>Manage Items</h1></a>
 
                 <button type="button" class="btn btn-default" id="single_manifest_print_labels"> Print Labels</button>
-                <button type="button" class="btn btn-default" id="single_Print_fest"> Print Manifest</button>
+                <button type="button" class="btn btn-default" id="print_manifest_all">Print All</button>
+<!--                <button type="button" class="btn btn-default" id="single_Print_fest"> Print Manifest</button>-->
             </div>
         </div>
     <?php } else if (arg(0) == "manage-freight" && arg(1) == "jobs") { ?>
         <div class="col-sm-10 text-right print-tab manifest-tab-box">
             <div class="row ">
-                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashbord</h1></a>
+                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashboard</h1></a>
                 <a href="?q=create-job"><h1>New Job</h1></a>
+<!--                <button type="button" class="btn btn-default" id="btn_new_manifest" data-toggle="modal" data-target="#create_new_manifest_popup">New Manifest</button>-->
                 <a href="?q=manage-freight/jobs"><h1>Manage Freight</h1></a>
                 <a href="?q=scan/updates"><h1>Status Update</h1></a>
                 <a href="?q=manage-customer"><h1>Customer Management</h1></a>
                 <a href="?q=pricing"><h1>Pricing</h1></a>
                 <a class="customm-menu-padding" href="?q=billing"><h1>Billing</h1></a>
-                <a href="#"><h1>Manage Employees</h1></a>
-                <a href="#"><h1>Manage Users</h1></a>
-                <a href="#"><h1>Audit Log</h1></a>
-                <a href="#"><h1>Manage Items</h1></a>
+                <a href="?q=manage-employee"><h1>Manage Employees</h1></a>
+                <a href="?q=admin/structure/taxonomy/item_type"><h1>Manage Items</h1></a>
 
                 <button type="button" class="btn btn-info btn-lg btn-lg-reciever" data-toggle="modal"
                         data-target="#manage-view-job-modal">Show Pickups
@@ -93,17 +89,16 @@
     <?php } else if ($nid->type == 'pricing') { ?>
         <div class="col-sm-10 text-right print-tab manifest-tab-box">
             <div class="row ">
-                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashbord</h1></a>
+                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashboard</h1></a>
                 <a href="?q=create-job"><h1>New Job</h1></a>
+<!--                <button type="button" class="btn btn-default" id="btn_new_manifest" data-toggle="modal" data-target="#create_new_manifest_popup">New Manifest</button>-->
                 <a href="?q=manage-freight/jobs"><h1>Manage Freight</h1></a>
                 <a href="?q=scan/updates"><h1>Status Update</h1></a>
                 <a href="?q=manage-customer"><h1>Customer Management</h1></a>
                 <a href="?q=pricing"><h1>Pricing</h1></a>
                 <a class="customm-menu-padding" href="?q=billing"><h1>Billing</h1></a>
-                <a href="#"><h1>Manage Employees</h1></a>
-                <a href="#"><h1>Manage Users</h1></a>
-                <a href="#"><h1>Audit Log</h1></a>
-                <a href="#"><h1>Manage Items</h1></a>
+                <a href="?q=manage-employee"><h1>Manage Employees</h1></a>
+                <a href="?q=admin/structure/taxonomy/item_type"><h1>Manage Items</h1></a>
 
                 <a href="?q=create-copy-pricing/<?php echo $job_id; ?>"><h1>Copy Pricing</h1></a>
             </div>
@@ -111,35 +106,51 @@
     <?php } else if ($nid->type == 'customer') { ?>
         <div class="col-sm-10 text-right print-tab manifest-tab-box">
             <div class="row ">
-                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashbord</h1></a>
+                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashboard</h1></a>
                 <a href="?q=create-job"><h1>New Job</h1></a>
+<!--                <button type="button" class="btn btn-default" id="btn_new_manifest" data-toggle="modal" data-target="#create_new_manifest_popup">New Manifest</button>-->
                 <a href="?q=manage-freight/jobs"><h1>Manage Freight</h1></a>
                 <a href="?q=scan/updates"><h1>Status Update</h1></a>
                 <a href="?q=manage-customer"><h1>Customer Management</h1></a>
                 <a href="?q=pricing"><h1>Pricing</h1></a>
                 <a class="customm-menu-padding" href="?q=billing"><h1>Billing</h1></a>
-                <a href="#"><h1>Manage Employees</h1></a>
-                <a href="#"><h1>Manage Users</h1></a>
-                <a href="#"><h1>Audit Log</h1></a>
-                <a href="#"><h1>Manage Items</h1></a>
+                <a href="?q=manage-employee"><h1>Manage Employees</h1></a>
+                <a href="?q=admin/structure/taxonomy/item_type"><h1>Manage Items</h1></a>
 
                 <a href="?q=create-copy-customer/<?php echo $job_id; ?>"><h1>Copy Customer</h1></a>
+            </div>
+        </div>
+    <?php } else if ($title == 'New Job') { ?>
+        <div class="col-sm-10 text-right print-tab manifest-tab-box">
+            <div class="row ">
+                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashboard</h1></a>
+                <a href="?q=create-job"><h1>New Job</h1></a>
+                <button type="button" class="btn btn-default" id="btn_new_manifest" data-toggle="modal" data-target="#create_new_manifest_popup">New Manifest</button>
+                <a href="?q=manage-freight/jobs"><h1>Manage Freight</h1></a>
+                <a href="?q=scan/updates"><h1>Status Update</h1></a>
+                <a href="?q=manage-customer"><h1>Customer Management</h1></a>
+                <a href="?q=pricing"><h1>Pricing</h1></a>
+                <a class="customm-menu-padding" href="?q=billing"><h1>Billing</h1></a>
+                <a href="?q=manage-employee"><h1>Manage Employees</h1></a>
+                <a href="?q=admin/structure/taxonomy/item_type"><h1>Manage Items</h1></a>
+
+<!--                <button type="button" class="btn btn-default" id="single_manifest_print_labels"> Print Labels</button>-->
+                <a href="?q=job/data/print/pdf&job_id=<?php echo $job_id; ?>" target='_blank'><h1>Print</h1></a>
             </div>
         </div>
     <?php } else { ?>
         <div class="col-sm-10 text-right print-tab manifest-tab-box">
             <div class="row ">
-                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashbord</h1></a>
+                <a class="customm-menu-padding" href="?q=dashboard"><h1>Dashboard</h1></a>
                 <a href="?q=create-job"><h1>New Job</h1></a>
+                <button type="button" class="btn btn-default" id="btn_new_manifest" data-toggle="modal" data-target="#create_new_manifest_popup">New Manifest</button>
                 <a href="?q=manage-freight/jobs"><h1>Manage Freight</h1></a>
                 <a href="?q=scan/updates"><h1>Status Update</h1></a>
                 <a href="?q=manage-customer"><h1>Customer Management</h1></a>
                 <a href="?q=pricing"><h1>Pricing</h1></a>
                 <a class="customm-menu-padding" href="?q=billing"><h1>Billing</h1></a>
-                <a href="#"><h1>Manage Employees</h1></a>
-                <a href="#"><h1>Manage Users</h1></a>
-                <a href="#"><h1>Audit Log</h1></a>
-                <a href="#"><h1>Manage Items</h1></a>
+                <a href="?q=manage-employee"><h1>Manage Employees</h1></a>
+                <a href="?q=admin/structure/taxonomy/item_type"><h1>Manage Items</h1></a>
             </div>
         </div>
     <?php } ?>
@@ -264,3 +275,36 @@
         </div>
     </div>
 </div>
+
+
+<!--    <!-- on click new manifest model -->-->
+<?php
+$url=arg(0);
+if (isset($url) && $url!='dashboard') {
+    global $user;
+    $node_manifest = new StdClass();
+    $node_manifest->uid = $user->uid;
+    $node_manifest->name = $user->name;
+    $node_manifest->type = 'manifest' ;
+    if(empty($node_manifest->original)){
+        $node_manifest->status = 0;
+    }
+    node_object_prepare($node_manifest);
+    module_load_include('inc', 'node', 'node.pages');
+    $manifest_node_form = drupal_get_form('manifest_node_form', $node_manifest);
+    ?>
+    <div class='container'>
+        <div class='modal fade' id='create_new_manifest_popup' role='dialog'>
+            <div class='modal-dialog'>
+
+                <div class='modal-content'>
+                    <div class='modal-header'>
+                        <button type='button' class='close' data-dismiss='modal'>&times;</button>
+                        <h4 class='modal-title'><strong>Create New Manifest</strong></h4>
+                    </div>
+                    <div class='modal-body'><?php print drupal_render($manifest_node_form); ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php }?>

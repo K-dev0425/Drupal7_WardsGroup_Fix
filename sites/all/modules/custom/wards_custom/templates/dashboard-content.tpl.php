@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="col-sm-3">
-      <div class="wrap">
+      <div class="wrap" id="new_manifest_wrap">
         <div class="imgCover">
           <span id="manifest_popup_model" >
           <span class="innerCover">
@@ -110,7 +110,7 @@ if(($user->roles[3] == 'administrator' && $user->roles[2] == 'authenticated user
 <fieldset class="pages_box">
     <h2 class="titleHeading"> <span class="heading"> System </span> <span class="headingLine"> </span> </h2>
     <div class="row">
-        <div class="col-sm-3">
+        <div class="col-sm-4">
             <div class="wrap">
                 <div class="imgCover">
                     <a href="?q=manage-customer">
@@ -119,34 +119,10 @@ if(($user->roles[3] == 'administrator' && $user->roles[2] == 'authenticated user
           </span>
                     </a>
                 </div>
-                <div class="detail"> <a href="?q=manage-customer"> Manage Employees </a> </div>
+                <div class="detail"> <a href="?q=manage-employee"> Manage Employees </a> </div>
             </div>
         </div>
-        <div class="col-sm-3">
-                <div class="wrap">
-                    <div class="imgCover">
-                        <a href="?q=pricing">
-          <span class="innerCover">
-          <img src="sites/all/themes/wards_custom_theme/images/pricing.png"/>
-          </span>
-                        </a>
-                    </div>
-                    <div class="detail"> <a href="?q=pricing"> Manage Users </a> </div>
-                </div>
-            </div>
-        <div class="col-sm-3">
-                <div class="wrap">
-                    <div class="imgCover">
-                        <a href="?q=billing">
-          <span class="innerCover">
-          <img src="sites/all/themes/wards_custom_theme/images/RunSheet.png"/>
-          </span>
-                        </a>
-                    </div>
-                    <div class="detail"> <a href="?q=billing"> Audit Log </a> </div>
-                </div>
-            </div>
-        <div class="col-sm-3">
+        <div class="col-sm-4">
             <div class="wrap">
                 <div class="imgCover">
                     <a href="?q=billing">
@@ -155,7 +131,19 @@ if(($user->roles[3] == 'administrator' && $user->roles[2] == 'authenticated user
           </span>
                     </a>
                 </div>
-                <div class="detail"> <a href="?q=billing"> Manage Items </a> </div>
+                <div class="detail"> <a href="?q=admin/structure/taxonomy/item_type">Manage Items</a></div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="wrap">
+                <div class="imgCover">
+                    <a href="?q=item_audit_log">
+          <span class="innerCover">
+          <img src="sites/all/themes/wards_custom_theme/images/RunSheet.png"/>
+          </span>
+                    </a>
+                </div>
+                <div class="detail"> <a href="?q=admin/structure/taxonomy/item_type">Item audit trail</a></div>
             </div>
         </div>
     </div>

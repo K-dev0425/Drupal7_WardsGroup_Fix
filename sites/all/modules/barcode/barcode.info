@@ -20,6 +20,7 @@ files[] = plugins/code39.inc
 files[] = plugins/code128.inc
 files[] = plugins/postnet.inc
 files[] = plugins/upce.inc
+files[] = plugins/qrcode.inc
 
 configure = admin/config/media/barcode
 
